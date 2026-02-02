@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, Check, AlertCircle, Loader2, ArrowLeft, Camera, FileText, User, Phone, MapPin, Calendar as CalendarIcon, Printer } from 'lucide-react';
+import { Upload, Check, AlertCircle, Loader2, ArrowLeft, Camera, FileText, User, Phone, MapPin, Calendar as CalendarIcon, Printer, Users } from 'lucide-react';
 import { StorageService } from '../services/storage';
 import { Logo } from '../components/Logo';
 
@@ -20,7 +20,13 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
     birthDate: '',
     gender: 'Laki-laki' as 'Laki-laki' | 'Perempuan',
     address: '',
-    parentName: '',
+    
+    // Field Baru
+    kkNumber: '',
+    fatherName: '',
+    fatherNik: '',
+    motherName: '',
+    motherNik: '',
     parentPhone: '',
   });
 
@@ -196,7 +202,7 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
                             <td className="py-2">: {formData.fullName.toUpperCase()}</td>
                         </tr>
                         <tr className="border-b border-gray-300">
-                            <td className="py-2 w-40 font-bold">NIK</td>
+                            <td className="py-2 w-40 font-bold">NIK Siswa</td>
                             <td className="py-2">: {formData.nik}</td>
                         </tr>
                         <tr className="border-b border-gray-300">
@@ -216,9 +222,17 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
                 <h3 className="text-lg font-bold border-b border-black mb-4 pb-1">B. Data Orang Tua / Wali</h3>
                 <table className="w-full text-sm">
                     <tbody>
+                         <tr className="border-b border-gray-300">
+                            <td className="py-2 w-40 font-bold">Nomor Kartu Keluarga</td>
+                            <td className="py-2">: {formData.kkNumber}</td>
+                        </tr>
                         <tr className="border-b border-gray-300">
-                            <td className="py-2 w-40 font-bold">Nama Orang Tua</td>
-                            <td className="py-2">: {formData.parentName}</td>
+                            <td className="py-2 w-40 font-bold">Nama Ayah</td>
+                            <td className="py-2">: {formData.fatherName} ({formData.fatherNik})</td>
+                        </tr>
+                        <tr className="border-b border-gray-300">
+                            <td className="py-2 w-40 font-bold">Nama Ibu</td>
+                            <td className="py-2">: {formData.motherName} ({formData.motherNik})</td>
                         </tr>
                         <tr className="border-b border-gray-300">
                             <td className="py-2 w-40 font-bold">No. WhatsApp</td>
@@ -303,12 +317,12 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
             {step === 1 && (
               <div className="space-y-5 animate-fade-in">
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nama Lengkap</label>
-                  <input required type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" placeholder="Sesuai Akte" />
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nama Lengkap (Sesuai Akte)</label>
+                  <input required type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" placeholder="Contoh: Ahmad Dahlan" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">NIK</label>
-                  <input required type="number" name="nik" value={formData.nik} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" placeholder="16 Digit" />
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">NIK Siswa (16 Digit)</label>
+                  <input required type="number" name="nik" value={formData.nik} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" placeholder="3571xxxxxxxx" />
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
@@ -332,31 +346,62 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
                   </div>
                 </div>
                 <button type="button" onClick={() => setStep(2)} className="w-full bg-school-600 text-white py-3.5 rounded-xl font-bold hover:bg-school-700 transition-colors shadow-lg shadow-school-200 mt-4">
-                  Lanjut
+                  Lanjut Data Ortu
                 </button>
               </div>
             )}
 
             {step === 2 && (
               <div className="space-y-5 animate-fade-in">
+                 {/* Nomor KK */}
+                 <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nomor Kartu Keluarga (KK)</label>
+                  <input required type="number" name="kkNumber" value={formData.kkNumber} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" placeholder="16 Digit Nomor KK" />
+                </div>
+
+                {/* Data Ayah */}
+                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
+                    <h3 className="font-bold text-sm text-gray-800 border-b border-gray-300 pb-2">Data Ayah Kandung</h3>
+                    <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nama Ayah</label>
+                        <input required type="text" name="fatherName" value={formData.fatherName} onChange={handleInputChange} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none" placeholder="Sesuai KK" />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">NIK Ayah</label>
+                        <input required type="number" name="fatherNik" value={formData.fatherNik} onChange={handleInputChange} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none" placeholder="16 Digit NIK Ayah" />
+                    </div>
+                </div>
+
+                {/* Data Ibu */}
+                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
+                    <h3 className="font-bold text-sm text-gray-800 border-b border-gray-300 pb-2">Data Ibu Kandung</h3>
+                    <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nama Ibu</label>
+                        <input required type="text" name="motherName" value={formData.motherName} onChange={handleInputChange} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none" placeholder="Sesuai KK" />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">NIK Ibu</label>
+                        <input required type="number" name="motherNik" value={formData.motherNik} onChange={handleInputChange} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none" placeholder="16 Digit NIK Ibu" />
+                    </div>
+                </div>
+                
+                <hr className="border-gray-100" />
+
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nama Ortu/Wali</label>
-                  <input required type="text" name="parentName" value={formData.parentName} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" />
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">No. WhatsApp Aktif</label>
+                  <input required type="tel" name="parentPhone" value={formData.parentPhone} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" placeholder="08xxxxxxxxxx" />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">No. WhatsApp</label>
-                  <input required type="tel" name="parentPhone" value={formData.parentPhone} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" />
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Alamat Lengkap (Domisili)</label>
+                  <textarea required name="address" value={formData.address} onChange={handleInputChange} rows={3} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" placeholder="Jalan, RT/RW, Kelurahan, Kecamatan" />
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Alamat Lengkap</label>
-                  <textarea required name="address" value={formData.address} onChange={handleInputChange} rows={3} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" />
-                </div>
+
                 <div className="flex gap-3 mt-4">
                     <button type="button" onClick={() => setStep(1)} className="flex-1 bg-gray-100 text-gray-700 py-3.5 rounded-xl font-bold hover:bg-gray-200 transition-colors">
                     Kembali
                     </button>
                     <button type="button" onClick={() => setStep(3)} className="flex-1 bg-school-600 text-white py-3.5 rounded-xl font-bold hover:bg-school-700 transition-colors shadow-lg shadow-school-200">
-                    Lanjut
+                    Lanjut Berkas
                     </button>
                 </div>
               </div>
@@ -436,19 +481,29 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
                     {/* Review Data Ortu */}
                     <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
                         <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2 border-b border-gray-200 pb-2">
-                            <User className="w-4 h-4 text-school-600" />
+                            <Users className="w-4 h-4 text-school-600" />
                             Data Orang Tua
                         </h3>
                         <div className="grid grid-cols-1 gap-y-2 text-sm">
-                            <div className="grid grid-cols-2 gap-2">
+                             <div>
+                                <span className="text-gray-500 text-xs block">No. KK</span>
+                                <span className="font-medium text-gray-800">{formData.kkNumber}</span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2 border-b border-gray-100 pb-2 mb-2">
                                 <div>
-                                    <span className="text-gray-500 text-xs block">Nama Ortu</span>
-                                    <span className="font-medium text-gray-800">{formData.parentName}</span>
+                                    <span className="text-gray-500 text-xs block">Ayah</span>
+                                    <span className="font-medium text-gray-800">{formData.fatherName}</span>
+                                    <span className="text-xs text-gray-400 block">{formData.fatherNik}</span>
                                 </div>
                                 <div>
-                                    <span className="text-gray-500 text-xs block">No. WhatsApp</span>
-                                    <span className="font-medium text-gray-800">{formData.parentPhone}</span>
+                                    <span className="text-gray-500 text-xs block">Ibu</span>
+                                    <span className="font-medium text-gray-800">{formData.motherName}</span>
+                                    <span className="text-xs text-gray-400 block">{formData.motherNik}</span>
                                 </div>
+                            </div>
+                            <div>
+                                <span className="text-gray-500 text-xs block">No. WhatsApp</span>
+                                <span className="font-medium text-gray-800">{formData.parentPhone}</span>
                             </div>
                             <div>
                                 <span className="text-gray-500 text-xs block">Alamat</span>

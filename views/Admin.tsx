@@ -278,8 +278,10 @@ export const Admin: React.FC<AdminProps> = ({ onNavigate }) => {
                                 <div className="flex items-start gap-3">
                                     <User className="w-4 h-4 text-gray-400 mt-0.5" />
                                     <div>
-                                        <p className="text-[10px] text-gray-500 uppercase font-bold">Orang Tua</p>
-                                        <p className="text-sm font-medium text-gray-800">{student.parentName}</p>
+                                        <p className="text-[10px] text-gray-500 uppercase font-bold">Data Orang Tua</p>
+                                        <p className="text-sm font-medium text-gray-800">Ayah: {student.fatherName}</p>
+                                        <p className="text-sm font-medium text-gray-800">Ibu: {student.motherName}</p>
+                                        <p className="text-xs text-gray-500 mt-1">KK: {student.kkNumber}</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-3">

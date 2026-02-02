@@ -12,8 +12,15 @@ export interface StudentRegistration {
   birthDate: string;
   gender: 'Laki-laki' | 'Perempuan';
   address: string;
-  parentName: string;
+  
+  // Data Orang Tua & KK Baru
+  kkNumber: string;
+  fatherName: string;
+  fatherNik: string;
+  motherName: string;
+  motherNik: string;
   parentPhone: string;
+  
   kkImage: string | null; // Base64 string for demo storage
   akteImage: string | null; // Base64 string for demo storage
   status: RegistrationStatus;
