@@ -46,7 +46,7 @@ export const Students: React.FC<StudentsProps> = ({ onNavigate }) => {
         <div className="bg-school-600 rounded-2xl p-6 text-white mb-6 shadow-lg relative overflow-hidden">
             <div className="absolute right-0 top-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10"></div>
             <div className="relative z-10">
-                <h2 className="text-2xl font-black uppercase tracking-tight mb-1">Siswa Baru</h2>
+                <h2 className="text-xl font-black uppercase tracking-tight mb-1">Calon Siswa SD Negeri Tempurejo 1</h2>
                 <p className="text-school-100 text-sm">Tahun Ajaran 2026/2027</p>
                 <div className="mt-4 inline-flex items-center gap-2 bg-white/20 backdrop-blur-md px-3 py-1 rounded-lg">
                     <Users className="w-4 h-4 text-yellow-300" />

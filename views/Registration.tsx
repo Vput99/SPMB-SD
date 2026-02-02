@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, Check, AlertCircle, Loader2, ArrowLeft, Camera, FileText, User, Phone, MapPin, Calendar as CalendarIcon, Printer, Users } from 'lucide-react';
+import { Upload, Check, AlertCircle, Loader2, ArrowLeft, Camera, FileText, User, Phone, MapPin, Calendar as CalendarIcon, Printer, Users, ChevronDown, ChevronUp, Edit3, School, Plus, Trash2 } from 'lucide-react';
 import { StorageService } from '../services/storage';
 import { Logo } from '../components/Logo';
 
@@ -7,11 +7,91 @@ interface RegistrationProps {
   onNavigate: (page: string) => void;
 }
 
+// Daftar Sekolah Terdekat (Kec. Pesantren, Kediri)
+const NEARBY_SCHOOLS = [
+  "UPTD SDN Tempurejo 2",
+  "UPTD SDN Ketami 1",
+  "UPTD SDN Ketami 2",
+  "UPTD SDN Ngletih 1",
+  "UPTD SDN Bawang 2",
+  "UPTD SDN Bawang 1",
+  "UPTD SDN Pesantren 1",
+  "UPTD SDN Pesantren 2",
+  "UPTD SDN Bawang 3"
+];
+
+// Komponen Accordion Item dipindahkan ke luar agar tidak re-render saat state berubah
+interface AccordionSectionProps {
+  id: number;
+  title: string;
+  icon: any;
+  children: React.ReactNode;
+  isCompleted: boolean;
+  currentStep: number;
+  maxStep: number;
+  onStepChange: (step: number) => void;
+}
+
+const AccordionSection: React.FC<AccordionSectionProps> = ({ 
+  id, 
+  title, 
+  icon: Icon, 
+  children, 
+  isCompleted,
+  currentStep,
+  maxStep,
+  onStepChange
+}) => {
+  const isActive = currentStep === id;
+  const isLocked = id > maxStep;
+
+  return (
+      <div className={`border rounded-xl transition-all duration-300 overflow-hidden mb-3 ${isActive ? 'bg-white border-school-400 shadow-md ring-1 ring-school-100' : 'bg-gray-50 border-gray-200'}`}>
+          <button 
+              type="button"
+              onClick={() => !isLocked && onStepChange(id)}
+              disabled={isLocked}
+              className={`w-full flex items-center justify-between p-4 text-left transition-colors ${isLocked ? 'cursor-not-allowed opacity-60' : 'cursor-pointer hover:bg-gray-50'}`}
+          >
+              <div className="flex items-center gap-3">
+                  <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${isActive ? 'bg-school-600 text-white' : isCompleted ? 'bg-green-100 text-green-600' : 'bg-gray-200 text-gray-500'}`}>
+                      {isCompleted && !isActive ? <Check className="w-5 h-5" /> : <Icon className="w-4 h-4" />}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className={`font-bold text-sm ${isActive ? 'text-school-800' : 'text-gray-700'}`}>{title}</span>
+                    {isCompleted && !isActive && <span className="text-[10px] text-green-600 font-medium flex items-center gap-1"><Check className="w-3 h-3" /> Data Tersimpan</span>}
+                  </div>
+              </div>
+              {!isLocked && (
+                  isActive ? <ChevronUp className="w-5 h-5 text-school-600" /> : <ChevronDown className="w-5 h-5 text-gray-400" />
+              )}
+          </button>
+          
+          {isActive && (
+              <div className="p-4 pt-0 border-t border-gray-100 animate-fade-in">
+                  <div className="mt-4">
+                    {children}
+                  </div>
+              </div>
+          )}
+      </div>
+  );
+};
+
 export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
+  // Step sekarang merepresentasikan Section yang sedang TERBUKA (Expanded)
+  // Total ada 5 step sekarang (termasuk pilihan sekolah)
   const [step, setStep] = useState(1);
+  const [maxStep, setMaxStep] = useState(1);
+  
   const [isLoading, setIsLoading] = useState(false);
   const [successId, setSuccessId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  // State untuk Pilihan Sekolah
+  // Pilihan 1 terkunci otomatis
+  const [schoolChoices, setSchoolChoices] = useState<string[]>(['UPTD SDN Tempurejo 1']);
+  const [selectedNearbySchool, setSelectedNearbySchool] = useState<string>('');
 
   const [formData, setFormData] = useState({
     fullName: '',
@@ -21,7 +101,6 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
     gender: 'Laki-laki' as 'Laki-laki' | 'Perempuan',
     address: '',
     
-    // Field Baru
     kkNumber: '',
     fatherName: '',
     fatherNik: '',
@@ -89,14 +168,66 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
     }
   };
 
-  const handleNextToValidation = () => {
-     if (!files.kk || !files.akte) {
-        setError("Mohon upload KK dan Akte sebelum melanjutkan.");
-        return;
-     }
-     setError(null);
-     setStep(4);
-  }
+  // Logic tambah sekolah pilihan
+  const addSchoolChoice = () => {
+      if (!selectedNearbySchool) return;
+      if (schoolChoices.includes(selectedNearbySchool)) {
+          alert("Sekolah ini sudah dipilih.");
+          return;
+      }
+      if (schoolChoices.length >= 5) {
+          alert("Maksimal memilih 5 sekolah.");
+          return;
+      }
+      setSchoolChoices([...schoolChoices, selectedNearbySchool]);
+      setSelectedNearbySchool('');
+  };
+
+  // Logic hapus sekolah pilihan (kecuali index 0)
+  const removeSchoolChoice = (index: number) => {
+      if (index === 0) return; // Cannot remove main school
+      const newChoices = [...schoolChoices];
+      newChoices.splice(index, 1);
+      setSchoolChoices(newChoices);
+  };
+
+  const handleNextStep = (nextStep: number) => {
+      setError(null);
+      // Validasi Step 1: Data Siswa
+      if (step === 1) {
+          if(!formData.fullName || !formData.nik || !formData.birthPlace || !formData.birthDate) {
+              setError("Mohon lengkapi data diri wajib.");
+              return;
+          }
+      }
+      // Validasi Step 2: Data Ortu
+      if (step === 2) {
+          if(!formData.kkNumber || !formData.fatherName || !formData.motherName || !formData.parentPhone || !formData.address) {
+              setError("Mohon lengkapi data orang tua & alamat.");
+              return;
+          }
+      }
+      // Validasi Step 3: Upload
+      if (step === 3) {
+        if (!files.kk || !files.akte) {
+            setError("Mohon upload KK dan Akte sebelum melanjutkan.");
+            return;
+        }
+      }
+      // Validasi Step 4: Pilihan Sekolah (Step baru)
+      if (step === 4 && nextStep === 5) {
+          // Pilihan 1 selalu ada, jadi validasi minimal length 1 sudah pasti lolos
+          if (schoolChoices.length < 1) {
+              setError("Minimal pilih 1 sekolah.");
+              return;
+          }
+      }
+
+      setStep(nextStep);
+      if (nextStep > maxStep) {
+          setMaxStep(nextStep);
+      }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -112,6 +243,7 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
     try {
       const result = await StorageService.addStudent({
         ...formData,
+        schoolChoices: schoolChoices,
         kkImage: files.kk,
         akteImage: files.akte,
       });
@@ -217,9 +349,24 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
                 </table>
             </div>
 
+            {/* Pilihan Sekolah */}
+            <div className="mb-8">
+                <h3 className="text-lg font-bold border-b border-black mb-4 pb-1">B. Pilihan Sekolah</h3>
+                <table className="w-full text-sm">
+                    <tbody>
+                        {schoolChoices.map((school, idx) => (
+                             <tr key={idx} className="border-b border-gray-300">
+                                <td className="py-2 w-40 font-bold">Pilihan {idx + 1}</td>
+                                <td className="py-2 uppercase">: {school} {idx === 0 ? '(Pilihan Wajib)' : ''}</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+
             {/* Data Orang Tua */}
             <div className="mb-8">
-                <h3 className="text-lg font-bold border-b border-black mb-4 pb-1">B. Data Orang Tua / Wali</h3>
+                <h3 className="text-lg font-bold border-b border-black mb-4 pb-1">C. Data Orang Tua / Wali</h3>
                 <table className="w-full text-sm">
                     <tbody>
                          <tr className="border-b border-gray-300">
@@ -288,25 +435,9 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
       </div>
 
       <div className="max-w-md mx-auto px-4 py-6">
-        {/* Progress Bar */}
-        <div className="flex justify-between items-center mb-8 px-2 relative">
-             <div className="absolute left-4 right-4 top-5 h-0.5 bg-gray-200 -z-10"></div>
-             <div className={`absolute left-4 top-5 h-0.5 bg-school-600 -z-10 transition-all duration-500`} style={{ width: `${((step - 1) / 3) * 100}%` }}></div>
+        <p className="text-gray-500 text-xs mb-4 ml-1">Silakan lengkapi data di setiap bagian berikut:</p>
 
-            {[1, 2, 3, 4].map((num) => (
-                <div key={num} className="flex flex-col items-center gap-1 bg-gray-50 px-1">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${step >= num ? 'bg-school-600 text-white shadow-md scale-110' : 'bg-gray-200 text-gray-500'}`}>
-                        {step > num ? <Check className="w-5 h-5" /> : num}
-                    </div>
-                    <span className={`text-[10px] font-medium transition-colors ${step >= num ? 'text-school-700' : 'text-gray-400'}`}>
-                        {num === 1 ? 'Data Diri' : num === 2 ? 'Ortu' : num === 3 ? 'Berkas' : 'Validasi'}
-                    </span>
-                </div>
-            ))}
-        </div>
-
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-          <div className="p-6">
+        <form onSubmit={handleSubmit}>
             {error && (
               <div className="bg-red-50 text-red-700 p-4 rounded-xl mb-6 flex items-start gap-3 border border-red-100 text-sm">
                 <AlertCircle className="w-5 h-5 flex-shrink-0 mt-0.5" />
@@ -314,235 +445,310 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
               </div>
             )}
 
-            {step === 1 && (
-              <div className="space-y-5 animate-fade-in">
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nama Lengkap (Sesuai Akte)</label>
-                  <input required type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" placeholder="Contoh: Ahmad Dahlan" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">NIK Siswa (16 Digit)</label>
-                  <input required type="number" name="nik" value={formData.nik} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" placeholder="3571xxxxxxxx" />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Tempat Lahir</label>
-                    <input required type="text" name="birthPlace" value={formData.birthPlace} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Tgl Lahir</label>
-                    <input required type="date" name="birthDate" value={formData.birthDate} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" />
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Jenis Kelamin</label>
-                  <div className="flex gap-2">
-                    {['Laki-laki', 'Perempuan'].map((g) => (
-                      <label key={g} className={`flex-1 text-center py-3 rounded-xl cursor-pointer border transition-all ${formData.gender === g ? 'bg-school-50 border-school-500 text-school-700 font-bold' : 'bg-white border-gray-200 text-gray-600'}`}>
-                        <input type="radio" name="gender" value={g} checked={formData.gender === g} onChange={handleInputChange} className="hidden" />
-                        {g}
-                      </label>
-                    ))}
-                  </div>
-                </div>
-                <button type="button" onClick={() => setStep(2)} className="w-full bg-school-600 text-white py-3.5 rounded-xl font-bold hover:bg-school-700 transition-colors shadow-lg shadow-school-200 mt-4">
-                  Lanjut Data Ortu
-                </button>
-              </div>
-            )}
-
-            {step === 2 && (
-              <div className="space-y-5 animate-fade-in">
-                 {/* Nomor KK */}
-                 <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nomor Kartu Keluarga (KK)</label>
-                  <input required type="number" name="kkNumber" value={formData.kkNumber} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" placeholder="16 Digit Nomor KK" />
-                </div>
-
-                {/* Data Ayah */}
-                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
-                    <h3 className="font-bold text-sm text-gray-800 border-b border-gray-300 pb-2">Data Ayah Kandung</h3>
-                    <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nama Ayah</label>
-                        <input required type="text" name="fatherName" value={formData.fatherName} onChange={handleInputChange} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none" placeholder="Sesuai KK" />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">NIK Ayah</label>
-                        <input required type="number" name="fatherNik" value={formData.fatherNik} onChange={handleInputChange} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none" placeholder="16 Digit NIK Ayah" />
-                    </div>
-                </div>
-
-                {/* Data Ibu */}
-                <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
-                    <h3 className="font-bold text-sm text-gray-800 border-b border-gray-300 pb-2">Data Ibu Kandung</h3>
-                    <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nama Ibu</label>
-                        <input required type="text" name="motherName" value={formData.motherName} onChange={handleInputChange} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none" placeholder="Sesuai KK" />
-                    </div>
-                    <div>
-                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">NIK Ibu</label>
-                        <input required type="number" name="motherNik" value={formData.motherNik} onChange={handleInputChange} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none" placeholder="16 Digit NIK Ibu" />
-                    </div>
-                </div>
-                
-                <hr className="border-gray-100" />
-
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">No. WhatsApp Aktif</label>
-                  <input required type="tel" name="parentPhone" value={formData.parentPhone} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" placeholder="08xxxxxxxxxx" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Alamat Lengkap (Domisili)</label>
-                  <textarea required name="address" value={formData.address} onChange={handleInputChange} rows={3} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" placeholder="Jalan, RT/RW, Kelurahan, Kecamatan" />
-                </div>
-
-                <div className="flex gap-3 mt-4">
-                    <button type="button" onClick={() => setStep(1)} className="flex-1 bg-gray-100 text-gray-700 py-3.5 rounded-xl font-bold hover:bg-gray-200 transition-colors">
-                    Kembali
-                    </button>
-                    <button type="button" onClick={() => setStep(3)} className="flex-1 bg-school-600 text-white py-3.5 rounded-xl font-bold hover:bg-school-700 transition-colors shadow-lg shadow-school-200">
-                    Lanjut Berkas
-                    </button>
-                </div>
-              </div>
-            )}
-
-            {step === 3 && (
-              <div className="space-y-6 animate-fade-in">
-                {['kk', 'akte'].map((type) => (
-                  <div key={type} className="border-2 border-dashed border-gray-200 rounded-xl p-4 bg-gray-50 hover:bg-white hover:border-school-400 transition-all text-center relative group">
-                    <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, type as 'kk' | 'akte')} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
-                    <div className="flex flex-col items-center gap-2">
-                      {files[type as 'kk' | 'akte'] ? (
-                        <div className="relative w-full h-32 rounded-lg overflow-hidden border border-gray-200">
-                            <img src={files[type as 'kk' | 'akte']!} alt={type} className="w-full h-full object-cover" />
-                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white font-medium text-sm">Ganti Foto</div>
-                        </div>
-                      ) : (
-                        <>
-                            <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm text-school-500 mb-1">
-                                <Camera className="w-6 h-6" />
-                            </div>
-                            <span className="font-bold text-gray-600 text-sm">Upload Foto {type === 'kk' ? 'Kartu Keluarga' : 'Akte Kelahiran'}</span>
-                            <span className="text-xs text-gray-400">Ketuk untuk mengambil gambar</span>
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ))}
-
-                <div className="flex gap-3 mt-6 pt-4 border-t border-gray-100">
-                  <button type="button" onClick={() => setStep(2)} disabled={isLoading} className="flex-1 bg-gray-100 text-gray-700 py-3.5 rounded-xl font-bold hover:bg-gray-200 transition-colors disabled:opacity-50">
-                    Kembali
-                  </button>
-                  <button type="button" onClick={handleNextToValidation} className="flex-1 bg-school-600 text-white py-3.5 rounded-xl font-bold hover:bg-school-700 transition-colors shadow-lg shadow-school-200 flex items-center justify-center gap-2">
-                    Lanjut Validasi
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {step === 4 && (
-              <div className="space-y-6 animate-fade-in">
-                <div className="bg-yellow-50 border border-yellow-100 p-4 rounded-xl text-yellow-800 text-sm flex gap-3">
-                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                    <p>Mohon periksa kembali data di bawah ini sebelum dikirim. Data yang sudah dikirim tidak dapat diubah sendiri.</p>
-                </div>
-
+            {/* SECTION 1: DATA SISWA */}
+            <AccordionSection 
+                id={1} 
+                title="Data Calon Siswa" 
+                icon={User} 
+                isCompleted={maxStep > 1}
+                currentStep={step}
+                maxStep={maxStep}
+                onStepChange={setStep}
+            >
                 <div className="space-y-4">
-                    {/* Review Data Diri */}
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                        <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2 border-b border-gray-200 pb-2">
-                            <User className="w-4 h-4 text-school-600" />
-                            Data Calon Siswa
-                        </h3>
-                        <div className="grid grid-cols-1 gap-y-2 text-sm">
-                            <div>
-                                <span className="text-gray-500 text-xs block">Nama Lengkap</span>
-                                <span className="font-medium text-gray-800">{formData.fullName}</span>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2">
-                                <div>
-                                    <span className="text-gray-500 text-xs block">NIK</span>
-                                    <span className="font-medium text-gray-800">{formData.nik}</span>
-                                </div>
-                                <div>
-                                    <span className="text-gray-500 text-xs block">Jenis Kelamin</span>
-                                    <span className="font-medium text-gray-800">{formData.gender}</span>
-                                </div>
-                            </div>
-                            <div>
-                                <span className="text-gray-500 text-xs block">TTL</span>
-                                <span className="font-medium text-gray-800">{formData.birthPlace}, {formData.birthDate}</span>
-                            </div>
+                    <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nama Lengkap (Sesuai Akte)</label>
+                        <input required type="text" name="fullName" value={formData.fullName} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" placeholder="Contoh: Ahmad Dahlan" />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">NIK Siswa (16 Digit)</label>
+                        <input required type="number" name="nik" value={formData.nik} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" placeholder="3571xxxxxxxx" />
+                    </div>
+                    <div className="grid grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Tempat Lahir</label>
+                            <input required type="text" name="birthPlace" value={formData.birthPlace} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Tgl Lahir</label>
+                            <input required type="date" name="birthDate" value={formData.birthDate} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" />
                         </div>
                     </div>
-
-                    {/* Review Data Ortu */}
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                        <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2 border-b border-gray-200 pb-2">
-                            <Users className="w-4 h-4 text-school-600" />
-                            Data Orang Tua
-                        </h3>
-                        <div className="grid grid-cols-1 gap-y-2 text-sm">
-                             <div>
-                                <span className="text-gray-500 text-xs block">No. KK</span>
-                                <span className="font-medium text-gray-800">{formData.kkNumber}</span>
-                            </div>
-                            <div className="grid grid-cols-2 gap-2 border-b border-gray-100 pb-2 mb-2">
-                                <div>
-                                    <span className="text-gray-500 text-xs block">Ayah</span>
-                                    <span className="font-medium text-gray-800">{formData.fatherName}</span>
-                                    <span className="text-xs text-gray-400 block">{formData.fatherNik}</span>
-                                </div>
-                                <div>
-                                    <span className="text-gray-500 text-xs block">Ibu</span>
-                                    <span className="font-medium text-gray-800">{formData.motherName}</span>
-                                    <span className="text-xs text-gray-400 block">{formData.motherNik}</span>
-                                </div>
-                            </div>
-                            <div>
-                                <span className="text-gray-500 text-xs block">No. WhatsApp</span>
-                                <span className="font-medium text-gray-800">{formData.parentPhone}</span>
-                            </div>
-                            <div>
-                                <span className="text-gray-500 text-xs block">Alamat</span>
-                                <span className="font-medium text-gray-800">{formData.address}</span>
-                            </div>
+                    <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Jenis Kelamin</label>
+                        <div className="flex gap-2">
+                            {['Laki-laki', 'Perempuan'].map((g) => (
+                            <label key={g} className={`flex-1 text-center py-3 rounded-xl cursor-pointer border transition-all ${formData.gender === g ? 'bg-school-50 border-school-500 text-school-700 font-bold' : 'bg-white border-gray-200 text-gray-600'}`}>
+                                <input type="radio" name="gender" value={g} checked={formData.gender === g} onChange={handleInputChange} className="hidden" />
+                                {g}
+                            </label>
+                            ))}
                         </div>
                     </div>
-
-                    {/* Review Berkas */}
-                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
-                        <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2 border-b border-gray-200 pb-2">
-                            <FileText className="w-4 h-4 text-school-600" />
-                            Berkas
-                        </h3>
-                        <div className="grid grid-cols-2 gap-3">
-                            <div className="border rounded-lg p-2 bg-white text-center">
-                                <span className="text-xs text-gray-500 block mb-1">Kartu Keluarga</span>
-                                <img src={files.kk!} alt="Preview KK" className="w-full h-20 object-cover rounded" />
-                            </div>
-                            <div className="border rounded-lg p-2 bg-white text-center">
-                                <span className="text-xs text-gray-500 block mb-1">Akte Kelahiran</span>
-                                <img src={files.akte!} alt="Preview Akte" className="w-full h-20 object-cover rounded" />
-                            </div>
-                        </div>
-                    </div>
+                    <button type="button" onClick={() => handleNextStep(2)} className="w-full bg-school-600 text-white py-3.5 rounded-xl font-bold hover:bg-school-700 transition-colors shadow-lg shadow-school-200 mt-4 flex justify-center items-center gap-2">
+                        Lanjut Data Ortu <ChevronDown className="w-4 h-4" />
+                    </button>
                 </div>
+            </AccordionSection>
 
-                <div className="flex gap-3 mt-6 pt-4 border-t border-gray-100">
-                  <button type="button" onClick={() => setStep(3)} disabled={isLoading} className="flex-1 bg-gray-100 text-gray-700 py-3.5 rounded-xl font-bold hover:bg-gray-200 transition-colors disabled:opacity-50">
-                    Perbaiki Data
-                  </button>
-                  <button type="submit" disabled={isLoading} className="flex-1 bg-accent-500 text-white py-3.5 rounded-xl font-bold hover:bg-accent-600 transition-colors shadow-lg shadow-accent-200 flex items-center justify-center gap-2 disabled:opacity-50">
-                    {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" />}
-                    {isLoading ? 'Mengirim...' : 'Kirim Pendaftaran'}
-                  </button>
+            {/* SECTION 2: DATA ORANG TUA */}
+            <AccordionSection 
+                id={2} 
+                title="Data Orang Tua & Kontak" 
+                icon={Users} 
+                isCompleted={maxStep > 2}
+                currentStep={step}
+                maxStep={maxStep}
+                onStepChange={setStep}
+            >
+                <div className="space-y-4">
+                    {/* Nomor KK */}
+                    <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nomor Kartu Keluarga (KK)</label>
+                        <input required type="number" name="kkNumber" value={formData.kkNumber} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" placeholder="16 Digit Nomor KK" />
+                    </div>
+
+                    {/* Data Ayah */}
+                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
+                        <h3 className="font-bold text-sm text-gray-800 border-b border-gray-300 pb-2">Data Ayah Kandung</h3>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nama Ayah</label>
+                            <input required type="text" name="fatherName" value={formData.fatherName} onChange={handleInputChange} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none" placeholder="Sesuai KK" />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">NIK Ayah</label>
+                            <input required type="number" name="fatherNik" value={formData.fatherNik} onChange={handleInputChange} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none" placeholder="16 Digit NIK Ayah" />
+                        </div>
+                    </div>
+
+                    {/* Data Ibu */}
+                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
+                        <h3 className="font-bold text-sm text-gray-800 border-b border-gray-300 pb-2">Data Ibu Kandung</h3>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Nama Ibu</label>
+                            <input required type="text" name="motherName" value={formData.motherName} onChange={handleInputChange} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none" placeholder="Sesuai KK" />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-bold text-gray-500 uppercase mb-1">NIK Ibu</label>
+                            <input required type="number" name="motherNik" value={formData.motherNik} onChange={handleInputChange} className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none" placeholder="16 Digit NIK Ibu" />
+                        </div>
+                    </div>
+                    
+                    <hr className="border-gray-100" />
+
+                    <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">No. WhatsApp Aktif</label>
+                        <input required type="tel" name="parentPhone" value={formData.parentPhone} onChange={handleInputChange} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" placeholder="08xxxxxxxxxx" />
+                    </div>
+                    <div>
+                        <label className="block text-xs font-bold text-gray-500 uppercase mb-1">Alamat Lengkap (Domisili)</label>
+                        <textarea required name="address" value={formData.address} onChange={handleInputChange} rows={3} className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none transition-all" placeholder="Jalan, RT/RW, Kelurahan, Kecamatan" />
+                    </div>
+
+                    <button type="button" onClick={() => handleNextStep(3)} className="w-full bg-school-600 text-white py-3.5 rounded-xl font-bold hover:bg-school-700 transition-colors shadow-lg shadow-school-200 mt-4 flex justify-center items-center gap-2">
+                        Lanjut Upload Dokumen <ChevronDown className="w-4 h-4" />
+                    </button>
                 </div>
-              </div>
-            )}
-          </div>
+            </AccordionSection>
+
+            {/* SECTION 3: UPLOAD DOKUMEN */}
+            <AccordionSection 
+                id={3} 
+                title="Upload Dokumen" 
+                icon={Upload} 
+                isCompleted={maxStep > 3}
+                currentStep={step}
+                maxStep={maxStep}
+                onStepChange={setStep}
+            >
+                 <div className="space-y-6">
+                    {['kk', 'akte'].map((type) => (
+                    <div key={type} className="border-2 border-dashed border-gray-200 rounded-xl p-4 bg-gray-50 hover:bg-white hover:border-school-400 transition-all text-center relative group">
+                        <input type="file" accept="image/*" onChange={(e) => handleFileChange(e, type as 'kk' | 'akte')} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" />
+                        <div className="flex flex-col items-center gap-2">
+                        {files[type as 'kk' | 'akte'] ? (
+                            <div className="relative w-full h-32 rounded-lg overflow-hidden border border-gray-200">
+                                <img src={files[type as 'kk' | 'akte']!} alt={type} className="w-full h-full object-cover" />
+                                <div className="absolute inset-0 bg-black/40 flex items-center justify-center text-white font-medium text-sm">Ganti Foto</div>
+                            </div>
+                        ) : (
+                            <>
+                                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center shadow-sm text-school-500 mb-1">
+                                    <Camera className="w-6 h-6" />
+                                </div>
+                                <span className="font-bold text-gray-600 text-sm">Upload Foto {type === 'kk' ? 'Kartu Keluarga' : 'Akte Kelahiran'}</span>
+                                <span className="text-xs text-gray-400">Ketuk untuk mengambil gambar</span>
+                            </>
+                        )}
+                        </div>
+                    </div>
+                    ))}
+                    
+                    <button type="button" onClick={() => handleNextStep(4)} className="w-full bg-school-600 text-white py-3.5 rounded-xl font-bold hover:bg-school-700 transition-colors shadow-lg shadow-school-200 mt-4 flex justify-center items-center gap-2">
+                        Lanjut Pilih Sekolah <ChevronDown className="w-4 h-4" />
+                    </button>
+                 </div>
+            </AccordionSection>
+
+            {/* SECTION 4: PILIHAN SEKOLAH (NEW) */}
+            <AccordionSection 
+                id={4} 
+                title="Pilihan Sekolah" 
+                icon={School} 
+                isCompleted={maxStep > 4}
+                currentStep={step}
+                maxStep={maxStep}
+                onStepChange={setStep}
+            >
+                <div className="space-y-4">
+                    <div className="bg-blue-50 border border-blue-100 p-3 rounded-xl text-blue-800 text-xs mb-2">
+                        <p className="font-bold mb-1">Ketentuan Pilihan:</p>
+                        <ul className="list-disc pl-4 space-y-0.5">
+                            <li>Pilihan 1 Wajib: UPTD SDN Tempurejo 1.</li>
+                            <li>Anda dapat menambahkan maksimal 4 sekolah lain sebagai cadangan.</li>
+                            <li>Sekolah terdekat diprioritaskan.</li>
+                        </ul>
+                    </div>
+
+                    {/* List Sekolah Terpilih */}
+                    <div className="space-y-3">
+                        {schoolChoices.map((school, index) => (
+                            <div key={index} className="flex items-center gap-3 bg-white p-3 rounded-xl border border-gray-200 shadow-sm">
+                                <div className="w-8 h-8 rounded-full bg-school-100 text-school-700 flex items-center justify-center font-bold text-sm">
+                                    {index + 1}
+                                </div>
+                                <div className="flex-1">
+                                    <p className="font-bold text-gray-800 text-sm">{school}</p>
+                                    {index === 0 && <span className="text-[10px] text-green-600 font-bold uppercase bg-green-50 px-2 py-0.5 rounded">Pilihan Utama</span>}
+                                </div>
+                                {index !== 0 && (
+                                    <button 
+                                        type="button" 
+                                        onClick={() => removeSchoolChoice(index)}
+                                        className="p-2 text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                                    >
+                                        <Trash2 className="w-4 h-4" />
+                                    </button>
+                                )}
+                                {index === 0 && <div className="w-8"></div>} {/* Spacer for locked item */}
+                            </div>
+                        ))}
+                    </div>
+
+                    {/* Tambah Pilihan Sekolah */}
+                    {schoolChoices.length < 5 && (
+                        <div className="mt-4 pt-4 border-t border-gray-100">
+                            <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Tambah Pilihan Sekolah Lain (Opsional)</label>
+                            <div className="flex gap-2">
+                                <div className="relative flex-1">
+                                    <select 
+                                        value={selectedNearbySchool}
+                                        onChange={(e) => setSelectedNearbySchool(e.target.value)}
+                                        className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-school-500 focus:outline-none appearance-none text-sm"
+                                    >
+                                        <option value="">-- Pilih Sekolah Terdekat --</option>
+                                        {NEARBY_SCHOOLS.filter(s => !schoolChoices.includes(s)).map((school) => (
+                                            <option key={school} value={school}>{school}</option>
+                                        ))}
+                                    </select>
+                                    <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+                                </div>
+                                <button 
+                                    type="button" 
+                                    onClick={addSchoolChoice}
+                                    disabled={!selectedNearbySchool}
+                                    className="bg-school-600 text-white px-4 rounded-xl hover:bg-school-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                                >
+                                    <Plus className="w-5 h-5" />
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    <button type="button" onClick={() => handleNextStep(5)} className="w-full bg-school-600 text-white py-3.5 rounded-xl font-bold hover:bg-school-700 transition-colors shadow-lg shadow-school-200 mt-4 flex justify-center items-center gap-2">
+                        Review & Kirim <ChevronDown className="w-4 h-4" />
+                    </button>
+                </div>
+            </AccordionSection>
+
+            {/* SECTION 5: KONFIRMASI */}
+            <AccordionSection 
+                id={5} 
+                title="Konfirmasi Pendaftaran" 
+                icon={FileText} 
+                isCompleted={false}
+                currentStep={step}
+                maxStep={maxStep}
+                onStepChange={setStep}
+            >
+                <div className="space-y-6">
+                    <div className="bg-yellow-50 border border-yellow-100 p-4 rounded-xl text-yellow-800 text-xs flex gap-3">
+                        <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                        <p>Mohon periksa kembali data di bawah ini. Pastikan data sudah benar sebelum dikirim.</p>
+                    </div>
+
+                    <div className="space-y-4">
+                        {/* Review Data Diri */}
+                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                            <div className="flex justify-between items-center mb-3 border-b border-gray-200 pb-2">
+                                <h3 className="font-bold text-gray-800 flex items-center gap-2 text-sm">
+                                    <User className="w-4 h-4 text-school-600" />
+                                    Calon Siswa
+                                </h3>
+                                <button type="button" onClick={() => setStep(1)} className="text-blue-600 p-1"><Edit3 className="w-4 h-4" /></button>
+                            </div>
+                            <div className="grid grid-cols-1 gap-y-2 text-sm">
+                                <div><span className="text-gray-500 text-xs block">Nama</span> <span className="font-medium text-gray-800">{formData.fullName}</span></div>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <div><span className="text-gray-500 text-xs block">NIK</span> <span className="font-medium text-gray-800">{formData.nik}</span></div>
+                                    <div><span className="text-gray-500 text-xs block">JK</span> <span className="font-medium text-gray-800">{formData.gender}</span></div>
+                                </div>
+                            </div>
+                        </div>
+
+                         {/* Review Pilihan Sekolah */}
+                         <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                            <div className="flex justify-between items-center mb-3 border-b border-gray-200 pb-2">
+                                <h3 className="font-bold text-gray-800 flex items-center gap-2 text-sm">
+                                    <School className="w-4 h-4 text-school-600" />
+                                    Pilihan Sekolah
+                                </h3>
+                                <button type="button" onClick={() => setStep(4)} className="text-blue-600 p-1"><Edit3 className="w-4 h-4" /></button>
+                            </div>
+                            <div className="text-sm space-y-1">
+                                {schoolChoices.map((school, i) => (
+                                    <div key={i} className="flex gap-2">
+                                        <span className="text-gray-500 w-4 font-mono">{i+1}.</span>
+                                        <span className={`font-medium ${i===0 ? 'text-school-700' : 'text-gray-800'}`}>{school}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Review Data Ortu */}
+                        <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                            <div className="flex justify-between items-center mb-3 border-b border-gray-200 pb-2">
+                                <h3 className="font-bold text-gray-800 flex items-center gap-2 text-sm">
+                                    <Users className="w-4 h-4 text-school-600" />
+                                    Orang Tua
+                                </h3>
+                                <button type="button" onClick={() => setStep(2)} className="text-blue-600 p-1"><Edit3 className="w-4 h-4" /></button>
+                            </div>
+                            <div className="text-sm space-y-2">
+                                <div><span className="text-gray-500 text-xs block">Ayah</span> <span className="font-medium text-gray-800">{formData.fatherName}</span></div>
+                                <div><span className="text-gray-500 text-xs block">Ibu</span> <span className="font-medium text-gray-800">{formData.motherName}</span></div>
+                                <div><span className="text-gray-500 text-xs block">Kontak</span> <span className="font-medium text-gray-800">{formData.parentPhone}</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" disabled={isLoading} className="w-full bg-accent-500 text-white py-4 rounded-xl font-bold hover:bg-accent-600 transition-colors shadow-lg shadow-accent-200 flex items-center justify-center gap-2 disabled:opacity-50">
+                        {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" />}
+                        {isLoading ? 'Mengirim Data...' : 'Kirim Pendaftaran Sekarang'}
+                    </button>
+                </div>
+            </AccordionSection>
+
         </form>
       </div>
     </div>

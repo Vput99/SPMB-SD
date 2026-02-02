@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StorageService } from '../services/storage';
 import { StudentRegistration, RegistrationStatus } from '../types';
-import { Check, X as XIcon, Trash2, ArrowLeft, RefreshCw, Download, FileText, User, Calendar, MapPin, Phone, Settings, Upload, Image as ImageIcon, Save } from 'lucide-react';
+import { Check, X as XIcon, Trash2, ArrowLeft, RefreshCw, Download, FileText, User, Calendar, MapPin, Phone, Settings, Upload, Image as ImageIcon, Save, FileSpreadsheet, School } from 'lucide-react';
 
 interface AdminProps {
   onNavigate: (page: string) => void;
@@ -44,6 +44,77 @@ export const Admin: React.FC<AdminProps> = ({ onNavigate }) => {
         window.location.reload();
     }
   }
+
+  const handleDownloadRecap = () => {
+    if (students.length === 0) {
+      alert("Belum ada data siswa untuk diunduh.");
+      return;
+    }
+
+    // Header untuk CSV
+    const headers = [
+      "No",
+      "Tanggal Daftar",
+      "Status",
+      "Nama Lengkap",
+      "NIK Siswa",
+      "Jenis Kelamin",
+      "Tempat Lahir",
+      "Tanggal Lahir",
+      "Alamat",
+      "Pilihan Sekolah 1",
+      "Pilihan Sekolah 2",
+      "Pilihan Sekolah 3",
+      "Pilihan Sekolah 4",
+      "Pilihan Sekolah 5",
+      "No KK",
+      "Nama Ayah",
+      "NIK Ayah",
+      "Nama Ibu",
+      "NIK Ibu",
+      "No HP Ortu"
+    ];
+
+    // Mapping data siswa ke baris CSV
+    const rows = students.map((s, index) => {
+      const choices = s.schoolChoices || [];
+      return [
+        index + 1,
+        `"${new Date(s.registrationDate).toLocaleDateString('id-ID')}"`,
+        s.status,
+        `"${s.fullName}"`,
+        `'${s.nik}`, // Tambah petik agar dibaca text oleh Excel (menghindari scientific notation)
+        s.gender,
+        `"${s.birthPlace}"`,
+        `"${s.birthDate}"`,
+        `"${s.address}"`,
+        `"${choices[0] || ''}"`,
+        `"${choices[1] || ''}"`,
+        `"${choices[2] || ''}"`,
+        `"${choices[3] || ''}"`,
+        `"${choices[4] || ''}"`,
+        `'${s.kkNumber}`,
+        `"${s.fatherName}"`,
+        `'${s.fatherNik}`,
+        `"${s.motherName}"`,
+        `'${s.motherNik}`,
+        `'${s.parentPhone}`
+      ].join(",");
+    });
+
+    // Gabungkan Header dan Rows
+    const csvContent = [headers.join(","), ...rows].join("\n");
+    
+    // Buat Blob dan Link Download
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `Rekap_PPDB_Siswa_${new Date().toISOString().split('T')[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const downloadImage = (dataUrl: string, filename: string) => {
     const link = document.createElement('a');
@@ -154,9 +225,15 @@ export const Admin: React.FC<AdminProps> = ({ onNavigate }) => {
                 <p className="text-[10px] text-gray-300">Dashboard Administrator</p>
             </div>
         </div>
-        <button onClick={fetchData} className="p-2 hover:bg-white/20 rounded-full">
-            <RefreshCw className="w-5 h-5" />
-        </button>
+        <div className="flex gap-2">
+            <button onClick={handleDownloadRecap} className="p-2 hover:bg-white/20 rounded-full flex items-center gap-2" title="Download Rekap CSV">
+                <FileSpreadsheet className="w-5 h-5" />
+                <span className="text-xs font-bold hidden sm:inline">Download Rekap</span>
+            </button>
+            <button onClick={fetchData} className="p-2 hover:bg-white/20 rounded-full" title="Refresh Data">
+                <RefreshCw className="w-5 h-5" />
+            </button>
+        </div>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-6">
@@ -279,8 +356,12 @@ export const Admin: React.FC<AdminProps> = ({ onNavigate }) => {
                                     <User className="w-4 h-4 text-gray-400 mt-0.5" />
                                     <div>
                                         <p className="text-[10px] text-gray-500 uppercase font-bold">Data Orang Tua</p>
-                                        <p className="text-sm font-medium text-gray-800">Ayah: {student.fatherName}</p>
-                                        <p className="text-sm font-medium text-gray-800">Ibu: {student.motherName}</p>
+                                        <p className="text-sm font-medium text-gray-800">
+                                            Ayah: {student.fatherName} <span className="text-gray-500 text-xs font-normal">(NIK: {student.fatherNik})</span>
+                                        </p>
+                                        <p className="text-sm font-medium text-gray-800">
+                                            Ibu: {student.motherName} <span className="text-gray-500 text-xs font-normal">(NIK: {student.motherNik})</span>
+                                        </p>
                                         <p className="text-xs text-gray-500 mt-1">KK: {student.kkNumber}</p>
                                     </div>
                                 </div>
@@ -293,6 +374,26 @@ export const Admin: React.FC<AdminProps> = ({ onNavigate }) => {
                                         </a>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+
+                        {/* Pilihan Sekolah */}
+                        <div className="bg-blue-50 rounded-xl p-4 border border-blue-100 mb-6">
+                            <h4 className="text-xs font-bold text-blue-800 uppercase mb-2 flex items-center gap-2">
+                                <School className="w-4 h-4" /> Pilihan Sekolah
+                            </h4>
+                            <div className="space-y-1">
+                                {student.schoolChoices && student.schoolChoices.length > 0 ? (
+                                    student.schoolChoices.map((school, i) => (
+                                        <div key={i} className="flex gap-2 text-sm text-blue-900">
+                                            <span className="font-mono w-4 font-bold opacity-50">{i+1}.</span>
+                                            <span>{school}</span>
+                                            {i === 0 && <span className="text-[10px] bg-blue-200 px-1.5 py-0.5 rounded font-bold uppercase text-blue-800 ml-2">Wajib</span>}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p className="text-sm text-gray-500 italic">Tidak ada data pilihan sekolah.</p>
+                                )}
                             </div>
                         </div>
 

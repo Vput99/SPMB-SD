@@ -21,6 +21,9 @@ export interface StudentRegistration {
   motherNik: string;
   parentPhone: string;
   
+  // Pilihan Sekolah
+  schoolChoices: string[];
+
   kkImage: string | null; // Base64 string for demo storage
   akteImage: string | null; // Base64 string for demo storage
   status: RegistrationStatus;
