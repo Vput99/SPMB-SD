@@ -262,6 +262,30 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
   if (successId) {
     return (
       <>
+        {/* Style khusus untuk cetak agar ukuran kertas pas A4 */}
+        <style>
+            {`
+            @media print {
+                @page {
+                    size: A4;
+                    margin: 0;
+                }
+                body {
+                    margin: 0;
+                    padding: 0;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                }
+                .print-hidden {
+                    display: none !important;
+                }
+                .print-visible {
+                    display: block !important;
+                }
+            }
+            `}
+        </style>
+
         {/* Tampilan Layar (Screen View) */}
         <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center animate-fade-in print:hidden">
           <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6 shadow-sm">
@@ -298,123 +322,129 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        {/* Tampilan Cetak (Print View) - Hanya muncul saat diprint */}
-        <div className="hidden print:block fixed inset-0 bg-white z-[9999] p-8 font-serif text-black">
-            {/* Kop Surat */}
-            <div className="flex items-center gap-4 border-b-4 border-black pb-4 mb-6">
-                <Logo className="w-24 h-24 grayscale" />
-                <div className="text-center flex-1">
-                    <h3 className="text-lg font-bold uppercase tracking-widest">Pemerintah Kota Kediri</h3>
-                    <h3 className="text-lg font-bold uppercase tracking-widest">Dinas Pendidikan</h3>
-                    <h1 className="text-3xl font-black uppercase mb-1">UPTD SDN Tempurejo 1</h1>
-                    <p className="text-sm">Jl. Bagawanta Bhari No. 1, Tempurejo, Kec. Pesantren, Kota Kediri - 64132</p>
-                    <p className="text-sm">Email: sdntempurejo1@gmail.com | Telp: (0354) 123456</p>
+        {/* Tampilan Cetak (Print View) - Layout A4 */}
+        <div className="hidden print:block fixed inset-0 bg-white z-[9999] font-serif text-black">
+            {/* Sheet A4 Wrapper */}
+            <div className="w-[210mm] min-h-[297mm] mx-auto p-[20mm] relative">
+                
+                {/* Kop Surat */}
+                <div className="flex items-center gap-4 pb-2 mb-1">
+                    <Logo className="w-24 h-24 grayscale" />
+                    <div className="text-center flex-1">
+                        <h3 className="text-sm font-bold uppercase tracking-widest text-gray-600">Pemerintah Kota Kediri</h3>
+                        <h3 className="text-sm font-bold uppercase tracking-widest text-gray-600 mb-1">Dinas Pendidikan</h3>
+                        <h1 className="text-3xl font-black uppercase mb-1">SD NEGERI TEMPUREJO 1</h1>
+                        <p className="text-sm">Jl. Raya Tempurejo No.12, Pesantren, Kediri</p>
+                        <p className="text-sm">Email: admin.sd@sdntempurejo1kotakediri.my.id</p>
+                    </div>
                 </div>
-            </div>
+                {/* Garis Ganda Kop Surat */}
+                <div className="border-t-4 border-black mb-0.5"></div>
+                <div className="border-t border-black mb-8"></div>
 
-            {/* Judul Dokumen */}
-            <div className="text-center mb-8">
-                <h2 className="text-2xl font-bold uppercase underline decoration-2 underline-offset-4">Bukti Pendaftaran PPDB Online</h2>
-                <p className="text-md mt-1 font-bold">Tahun Ajaran 2026/2027</p>
-            </div>
+                {/* Judul Dokumen */}
+                <div className="text-center mb-8">
+                    <h2 className="text-xl font-bold uppercase underline decoration-2 underline-offset-4">Bukti Pendaftaran PPDB Online</h2>
+                    <p className="text-md mt-1 font-bold">Tahun Ajaran 2026/2027</p>
+                </div>
 
-            {/* Nomor Registrasi */}
-            <div className="border-2 border-black p-4 mb-8 text-center bg-gray-50">
-                <p className="text-sm font-bold uppercase mb-1">Nomor Registrasi</p>
-                <p className="text-3xl font-mono font-black tracking-widest">{successId.slice(0, 8).toUpperCase()}</p>
-            </div>
+                {/* Nomor Registrasi Box */}
+                <div className="border-2 border-black p-4 mb-8 text-center bg-gray-50 mx-auto w-3/4 rounded-lg">
+                    <p className="text-sm font-bold uppercase mb-1">Nomor Registrasi</p>
+                    <p className="text-3xl font-mono font-black tracking-widest">{successId.slice(0, 8).toUpperCase()}</p>
+                </div>
 
-            {/* Data Siswa */}
-            <div className="mb-8">
-                <h3 className="text-lg font-bold border-b border-black mb-4 pb-1">A. Data Calon Peserta Didik</h3>
-                <table className="w-full text-sm">
-                    <tbody>
-                        <tr className="border-b border-gray-300">
-                            <td className="py-2 w-40 font-bold">Nama Lengkap</td>
-                            <td className="py-2">: {formData.fullName.toUpperCase()}</td>
-                        </tr>
-                        <tr className="border-b border-gray-300">
-                            <td className="py-2 w-40 font-bold">NIK Siswa</td>
-                            <td className="py-2">: {formData.nik}</td>
-                        </tr>
-                        <tr className="border-b border-gray-300">
-                            <td className="py-2 w-40 font-bold">Tempat, Tgl Lahir</td>
-                            <td className="py-2">: {formData.birthPlace}, {formData.birthDate}</td>
-                        </tr>
-                        <tr className="border-b border-gray-300">
-                            <td className="py-2 w-40 font-bold">Jenis Kelamin</td>
-                            <td className="py-2">: {formData.gender}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            {/* Pilihan Sekolah */}
-            <div className="mb-8">
-                <h3 className="text-lg font-bold border-b border-black mb-4 pb-1">B. Pilihan Sekolah</h3>
-                <table className="w-full text-sm">
-                    <tbody>
-                        {schoolChoices.map((school, idx) => (
-                             <tr key={idx} className="border-b border-gray-300">
-                                <td className="py-2 w-40 font-bold">Pilihan {idx + 1}</td>
-                                <td className="py-2 uppercase">: {school} {idx === 0 ? '(Pilihan Wajib)' : ''}</td>
+                {/* Data Siswa */}
+                <div className="mb-6">
+                    <h3 className="text-md font-bold border-b border-black mb-3 pb-1 uppercase">A. Data Calon Peserta Didik</h3>
+                    <table className="w-full text-sm">
+                        <tbody>
+                            <tr>
+                                <td className="py-1.5 w-48 font-bold align-top">Nama Lengkap</td>
+                                <td className="py-1.5 align-top font-medium">: {formData.fullName.toUpperCase()}</td>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-            </div>
-
-            {/* Data Orang Tua */}
-            <div className="mb-8">
-                <h3 className="text-lg font-bold border-b border-black mb-4 pb-1">C. Data Orang Tua / Wali</h3>
-                <table className="w-full text-sm">
-                    <tbody>
-                         <tr className="border-b border-gray-300">
-                            <td className="py-2 w-40 font-bold">Nomor Kartu Keluarga</td>
-                            <td className="py-2">: {formData.kkNumber}</td>
-                        </tr>
-                        <tr className="border-b border-gray-300">
-                            <td className="py-2 w-40 font-bold">Nama Ayah</td>
-                            <td className="py-2">: {formData.fatherName} ({formData.fatherNik})</td>
-                        </tr>
-                        <tr className="border-b border-gray-300">
-                            <td className="py-2 w-40 font-bold">Nama Ibu</td>
-                            <td className="py-2">: {formData.motherName} ({formData.motherNik})</td>
-                        </tr>
-                        <tr className="border-b border-gray-300">
-                            <td className="py-2 w-40 font-bold">No. WhatsApp</td>
-                            <td className="py-2">: {formData.parentPhone}</td>
-                        </tr>
-                        <tr className="border-b border-gray-300">
-                            <td className="py-2 w-40 font-bold">Alamat Rumah</td>
-                            <td className="py-2">: {formData.address}</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            {/* Catatan */}
-            <div className="bg-gray-100 border border-gray-400 p-4 mb-12 text-sm">
-                <p className="font-bold mb-2">Catatan Penting:</p>
-                <ul className="list-disc pl-5 space-y-1">
-                    <li>Simpan bukti pendaftaran ini sebagai syarat daftar ulang.</li>
-                    <li>Silakan pantau hasil seleksi melalui menu <strong>PENGUMUMAN</strong> di website sekolah.</li>
-                    <li>Verifikasi berkas fisik akan diinformasikan lebih lanjut melalui WhatsApp.</li>
-                </ul>
-            </div>
-
-            {/* Tanda Tangan */}
-            <div className="flex justify-end mt-10">
-                <div className="text-center w-64">
-                    <p className="mb-20">Kediri, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-                    <p className="font-bold border-b border-black inline-block min-w-[200px] mb-1">Panitia PPDB</p>
-                    <p className="text-xs">SDN Tempurejo 1</p>
+                            <tr>
+                                <td className="py-1.5 w-48 font-bold align-top">NIK Siswa</td>
+                                <td className="py-1.5 align-top">: {formData.nik}</td>
+                            </tr>
+                            <tr>
+                                <td className="py-1.5 w-48 font-bold align-top">Tempat, Tgl Lahir</td>
+                                <td className="py-1.5 align-top">: {formData.birthPlace}, {formData.birthDate}</td>
+                            </tr>
+                            <tr>
+                                <td className="py-1.5 w-48 font-bold align-top">Jenis Kelamin</td>
+                                <td className="py-1.5 align-top">: {formData.gender}</td>
+                            </tr>
+                        </tbody>
+                    </table>
                 </div>
-            </div>
 
-            {/* Footer Print */}
-            <div className="fixed bottom-4 left-0 right-0 text-center text-[10px] text-gray-500 italic">
-                Dicetak otomatis melalui Sistem PPDB Online SDN Tempurejo 1 pada {new Date().toLocaleString('id-ID')}
+                {/* Pilihan Sekolah */}
+                <div className="mb-6">
+                    <h3 className="text-md font-bold border-b border-black mb-3 pb-1 uppercase">B. Pilihan Sekolah</h3>
+                    <table className="w-full text-sm">
+                        <tbody>
+                            {schoolChoices.map((school, idx) => (
+                                <tr key={idx}>
+                                    <td className="py-1.5 w-48 font-bold align-top">Pilihan {idx + 1}</td>
+                                    <td className="py-1.5 align-top uppercase">: {school} {idx === 0 ? '(Pilihan Wajib)' : ''}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Data Orang Tua */}
+                <div className="mb-6">
+                    <h3 className="text-md font-bold border-b border-black mb-3 pb-1 uppercase">C. Data Orang Tua / Wali</h3>
+                    <table className="w-full text-sm">
+                        <tbody>
+                            <tr>
+                                <td className="py-1.5 w-48 font-bold align-top">Nomor KK</td>
+                                <td className="py-1.5 align-top">: {formData.kkNumber}</td>
+                            </tr>
+                            <tr>
+                                <td className="py-1.5 w-48 font-bold align-top">Nama Ayah</td>
+                                <td className="py-1.5 align-top">: {formData.fatherName}</td>
+                            </tr>
+                            <tr>
+                                <td className="py-1.5 w-48 font-bold align-top">Nama Ibu</td>
+                                <td className="py-1.5 align-top">: {formData.motherName}</td>
+                            </tr>
+                            <tr>
+                                <td className="py-1.5 w-48 font-bold align-top">No. WhatsApp</td>
+                                <td className="py-1.5 align-top">: {formData.parentPhone}</td>
+                            </tr>
+                             <tr>
+                                <td className="py-1.5 w-48 font-bold align-top">Alamat Rumah</td>
+                                <td className="py-1.5 align-top">: {formData.address}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* Catatan Box */}
+                <div className="border border-black p-3 mb-8 text-sm">
+                    <p className="font-bold mb-1">Catatan Penting:</p>
+                    <ul className="list-disc pl-5 space-y-0.5 text-xs">
+                        <li>Simpan bukti pendaftaran ini sebagai syarat daftar ulang.</li>
+                        <li>Silakan pantau hasil seleksi melalui menu <strong>PENGUMUMAN</strong> di website sekolah.</li>
+                    </ul>
+                </div>
+
+                {/* Tanda Tangan */}
+                <div className="flex justify-end mt-4">
+                    <div className="text-center w-64">
+                        <p className="mb-16">Kediri, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                        <p className="font-bold border-b border-black inline-block min-w-[200px] mb-1">Panitia PPDB</p>
+                        <p className="text-xs">SDN Tempurejo 1</p>
+                    </div>
+                </div>
+                
+                {/* Footer timestamp */}
+                <div className="absolute bottom-[20mm] left-[20mm] text-[10px] text-gray-400 italic">
+                    Dicetak pada: {new Date().toLocaleString('id-ID')}
+                </div>
             </div>
         </div>
       </>

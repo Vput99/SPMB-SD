@@ -43,7 +43,7 @@ export const Footer: React.FC = () => {
             <ul className="text-sm space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-yellow-500 flex-shrink-0 mt-0.5" />
-                <span>Jl. Bagawanta Bhari No. 1,<br/>Tempurejo, Kec. Pesantren,<br/>Kota Kediri 64132</span>
+                <span>Jl. Raya Tempurejo No.12,<br/>Pesantren,<br/>Kota Kediri 64132</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-yellow-500 flex-shrink-0" />
@@ -51,7 +51,7 @@ export const Footer: React.FC = () => {
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-yellow-500 flex-shrink-0" />
-                <span>sdntempurejo1@gmail.com</span>
+                <span className="break-all">admin.sd@sdntempurejo1kotakediri.my.id</span>
               </li>
             </ul>
           </div>

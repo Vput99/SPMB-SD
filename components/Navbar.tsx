@@ -30,7 +30,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
             </div>
             <div className="flex items-center gap-1.5">
               <Mail className="w-3 h-3 text-yellow-400" />
-              <span>sdntempurejo1@gmail.com</span>
+              <span>admin.sd@sdntempurejo1kotakediri.my.id</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
@@ -64,7 +64,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
              </h1>
              <div className="flex flex-wrap items-center gap-1 text-gray-500 text-[10px] sm:text-xs lg:text-sm font-medium">
                <MapPin className="w-3 h-3 sm:w-4 sm:h-4 text-red-600" />
-               <span>Jl. Bagawanta Bhari No. 1, Tempurejo, Kec. Pesantren, Kota Kediri - 64132</span>
+               <span>Jl. Raya Tempurejo No.12, Pesantren, Kota Kediri - 64132</span>
              </div>
           </div>
         </div>

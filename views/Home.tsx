@@ -168,7 +168,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
              <div className="mt-8 text-center pb-8">
                  <p className="text-[10px] text-white/80 font-medium drop-shadow-sm flex items-center justify-center gap-1">
                     <MapPin className="w-3 h-3 text-accent-400" />
-                    Jl. Bagawanta Bhari No. 1, Kota Kediri
+                    Jl. Raya Tempurejo No.12, Kota Kediri
                  </p>
                  <p className="text-[10px] text-white/50 mt-1">
                     &copy; 2026 SDN Tempurejo 1
