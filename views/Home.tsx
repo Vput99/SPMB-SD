@@ -147,9 +147,10 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                 <div className="space-y-5 relative z-10">
                     <div className="absolute left-3.5 top-2 bottom-2 w-0.5 bg-gray-100"></div>
                     {[
-                        { title: "Isi Formulir", desc: "Siapkan KK & Akte" },
-                        { title: "Verifikasi Admin", desc: "Data divalidasi sekolah" },
-                        { title: "Pengumuman", desc: "Lihat hasil seleksi online" }
+                        { title: "Isi Formulir", desc: "Siapkan KK & Akte Anak" },
+                        { title: "Verifikasi Admin", desc: "Tunggu Admin memverifikasi data" },
+                        { title: "Data Terverifikasi", desc: "Lihat data siswa terverifikasi" },
+                        { title: "Menunggu Jadwal", desc: "Sampai SPMB resmi dilaksanakan" }
                     ].map((step, idx) => (
                         <div key={idx} className="relative flex gap-4 items-center">
                             <div className="w-8 h-8 rounded-full bg-school-600 text-white flex items-center justify-center text-xs font-bold shadow-md ring-4 ring-white z-10 flex-shrink-0">
