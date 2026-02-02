@@ -1,7 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
 
-const apiKey = process.env.API_KEY || '';
-
 // Fallback response if no API key is present
 const MOCK_RESPONSE = "Maaf, kunci API AI belum dikonfigurasi. Saya tidak dapat menjawab pertanyaan saat ini. Namun, Anda dapat melihat menu 'Informasi' atau 'Pengumuman'.";
 
@@ -37,24 +35,27 @@ Jawablah pertanyaan pengguna berdasarkan konteks di atas.
 `;
 
 export const sendMessageToGemini = async (history: { role: string; parts: { text: string }[] }[], newMessage: string): Promise<string> => {
-  if (!apiKey) {
+  // Use process.env.API_KEY directly as per guidelines
+  if (!process.env.API_KEY) {
     console.warn("API Key is missing for Gemini Service");
     return MOCK_RESPONSE;
   }
 
   try {
-    const ai = new GoogleGenAI({ apiKey });
-    const model = ai.models.getGenerativeModel({
+    const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+    
+    // Use ai.chats.create instead of deprecated ai.models.getGenerativeModel().startChat()
+    const chat = ai.chats.create({
       model: "gemini-3-flash-preview", 
-      systemInstruction: systemInstruction,
-    });
-
-    const chat = model.startChat({
       history: history,
+      config: {
+        systemInstruction: systemInstruction,
+      },
     });
 
-    const result = await chat.sendMessage(newMessage);
-    return result.response.text();
+    // Use sendMessage with object argument and access .text property directly
+    const result = await chat.sendMessage({ message: newMessage });
+    return result.text || "";
   } catch (error) {
     console.error("Error communicating with Gemini:", error);
     return "Maaf, terjadi kesalahan pada sistem AI kami. Silakan coba lagi nanti.";
