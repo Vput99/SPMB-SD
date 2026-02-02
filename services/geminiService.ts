@@ -11,7 +11,7 @@ Informasi Sekolah:
 - Lokasi: Kecamatan Pesantren, Kota Kediri, Jawa Timur.
 - Visi: Terwujudnya Peserta Didik yang Beriman, Cerdas, Terampil, dan Berkarakter.
 - Fasilitas: Ruang kelas nyaman, Perpustakaan, Lapangan Olahraga, Laboratorium, Musholla, UKS.
-- Ekstrakurikuler: Pramuka (Wajib), Tari, Drumband, Pencak Silat, Keagamaan (BTQ).
+- Ekstrakurikuler: Pramuka (Wajib), Tari, Drumband, Pencak Silat, Keagamaan (BTQ & UMI).
 
 Persyaratan Pendaftaran:
 1. Usia minimal 6 tahun pada bulan Juli tahun ajaran baru.

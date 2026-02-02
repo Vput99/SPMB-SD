@@ -127,7 +127,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                     Ekstrakurikuler
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                    {['Pramuka', 'Karate', 'Tari', 'Voli', 'Qiro\'ah', 'Menggambar'].map((ekstra) => (
+                    {['Pramuka', 'Karate', 'Tari', 'Voli', 'Qiro\'ah', 'Menggambar', 'UMI'].map((ekstra) => (
                         <span key={ekstra} className="px-2 py-1 rounded-md bg-white/20 text-[10px] font-medium border border-white/10">
                             {ekstra}
                         </span>
@@ -139,15 +139,18 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
             <div className="bg-white rounded-2xl shadow-xl p-6 border-t-4 border-accent-500 relative overflow-hidden">
                 <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2 relative z-10">
                     <Users className="w-5 h-5 text-school-600" />
-                    Alur Pendaftaran
+                    Alur Pendaftaran PPDB Online
                 </h3>
                 <div className="space-y-5 relative z-10">
                     <div className="absolute left-3.5 top-2 bottom-2 w-0.5 bg-gray-100"></div>
                     {[
-                        { title: "Isi Formulir", desc: "Siapkan KK & Akte Anak" },
-                        { title: "Verifikasi Admin", desc: "Tunggu Admin memverifikasi data" },
-                        { title: "Data Terverifikasi", desc: "Lihat data siswa terverifikasi" },
-                        { title: "Menunggu Jadwal", desc: "Sampai SPMB resmi dilaksanakan" }
+                        { title: "Pendaftaran Online", desc: "Siswa melakukan pendaftaran online dengan NISN/NIK." },
+                        { title: "Upload Dokumen", desc: "Unggah Dokumen (Wajib Format JPEG/JPG/PNG, Max 1MB)." },
+                        { title: "Pilih Sekolah", desc: "Pilih sekolah tujuan: UPTD SDN Tempurejo 1." },
+                        { title: "Simpan & Cetak", desc: "Simpan proses pendaftaran dan cetak bukti pendaftaran." },
+                        { title: "Verifikasi Operator", desc: "Operator Sekolah memverifikasi berkas secara daring (Terima/Tolak)." },
+                        { title: "Cek Status", desc: "Siswa mengecek status verifikasi berkas secara berkala." },
+                        { title: "Pengumuman", desc: "Cek Pengumuman Hasil Akhir sesuai jadwal seleksi." }
                     ].map((step, idx) => (
                         <div key={idx} className="relative flex gap-4 items-center">
                             <div className="w-8 h-8 rounded-full bg-school-600 text-white flex items-center justify-center text-xs font-bold shadow-md ring-4 ring-white z-10 flex-shrink-0">
@@ -155,7 +158,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                             </div>
                             <div>
                                 <h4 className="font-bold text-sm text-gray-800 leading-tight">{step.title}</h4>
-                                <p className="text-[10px] text-gray-500">{step.desc}</p>
+                                <p className="text-[10px] text-gray-500 leading-snug">{step.desc}</p>
                             </div>
                         </div>
                     ))}
