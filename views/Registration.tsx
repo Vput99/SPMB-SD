@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Upload, Check, AlertCircle, Loader2, ArrowLeft, Camera, FileText, User, Phone, MapPin, Calendar as CalendarIcon, Printer } from 'lucide-react';
 import { StorageService } from '../services/storage';
+import { Logo } from '../components/Logo';
 
 interface RegistrationProps {
   onNavigate: (page: string) => void;
@@ -163,11 +164,7 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
         <div className="hidden print:block fixed inset-0 bg-white z-[9999] p-8 font-serif text-black">
             {/* Kop Surat */}
             <div className="flex items-center gap-4 border-b-4 border-black pb-4 mb-6">
-                <img 
-                    src="https://upload.wikimedia.org/wikipedia/commons/b/b5/Tut_Wuri_Handayani.svg" 
-                    alt="Logo" 
-                    className="w-24 h-24 grayscale"
-                />
+                <Logo className="w-24 h-24 grayscale" />
                 <div className="text-center flex-1">
                     <h3 className="text-lg font-bold uppercase tracking-widest">Pemerintah Kota Kediri</h3>
                     <h3 className="text-lg font-bold uppercase tracking-widest">Dinas Pendidikan</h3>

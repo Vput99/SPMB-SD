@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Menu, X, Home, FileText, Bell, Lock, Phone, Mail, Facebook, Youtube, Instagram, MapPin, Users } from 'lucide-react';
+import { Logo } from './Logo';
 
 interface NavbarProps {
   currentPage: string;
@@ -47,11 +48,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center gap-4">
           {/* Logo */}
           <div className="flex-shrink-0">
-             <img 
-               src="https://upload.wikimedia.org/wikipedia/commons/b/b5/Tut_Wuri_Handayani.svg" 
-               alt="Logo Tut Wuri Handayani" 
-               className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 filter drop-shadow-sm"
-             />
+             <Logo className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 filter drop-shadow-sm" />
           </div>
           
           {/* Teks Kop */}

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Calendar, CheckCircle, Upload, Users, ChevronRight, FileText, Bell, Lock, Leaf, Sprout, MapPin, Trophy, Home as HomeIcon } from 'lucide-react';
+import { Logo } from '../components/Logo';
 
 interface HomeProps {
   onNavigate: (page: string) => void;
@@ -48,11 +49,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
             <div className="max-w-md mx-auto text-center">
                 {/* Logo Wrapper with Glass Effect */}
                 <div className="mx-auto bg-white/20 backdrop-blur-md p-3 rounded-full w-24 h-24 flex items-center justify-center shadow-xl mb-4 border-2 border-white/30 animate-float">
-                    <img 
-                    src="https://upload.wikimedia.org/wikipedia/commons/b/b5/Tut_Wuri_Handayani.svg" 
-                    alt="Logo Tut Wuri Handayani" 
-                    className="w-16 h-16 drop-shadow-md"
-                    />
+                    <Logo className="w-16 h-16 drop-shadow-md" />
                 </div>
 
                 <div className="inline-flex items-center gap-1 bg-school-900/50 px-3 py-1 rounded-full backdrop-blur-md mb-4 border border-white/20 shadow-sm">

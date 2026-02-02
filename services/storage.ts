@@ -1,8 +1,10 @@
 import { StudentRegistration, RegistrationStatus } from '../types';
 import { db, isConfigured } from './firebase';
-import { collection, addDoc, getDocs, updateDoc, doc, query, orderBy } from "firebase/firestore";
+import { collection, addDoc, getDocs, updateDoc, doc, query, orderBy, setDoc, getDoc } from "firebase/firestore";
 
 const COLLECTION_NAME = 'students';
+const SETTINGS_COLLECTION = 'settings';
+const SCHOOL_DOC_ID = 'school_config';
 
 // Helper untuk mengecek konfigurasi sebelum melakukan operasi
 const checkConfig = () => {
@@ -82,6 +84,35 @@ export const StorageService = {
       console.error("Error updating status: ", error);
       throw error;
     }
+  },
+
+  // Mengambil Logo Sekolah
+  getSchoolLogo: async (): Promise<string | null> => {
+    try {
+        if (!isConfigured) return null;
+        const docRef = doc(db, SETTINGS_COLLECTION, SCHOOL_DOC_ID);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+            return docSnap.data().logoUrl;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error getting logo:", error);
+        return null;
+    }
+  },
+
+  // Menyimpan Logo Sekolah
+  saveSchoolLogo: async (base64Image: string): Promise<void> => {
+      checkConfig();
+      try {
+          const docRef = doc(db, SETTINGS_COLLECTION, SCHOOL_DOC_ID);
+          await setDoc(docRef, { logoUrl: base64Image }, { merge: true });
+      } catch (error) {
+          console.error("Error saving logo:", error);
+          throw new Error("Gagal menyimpan logo.");
+      }
   },
 
   clearData: async () => {

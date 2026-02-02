@@ -1,5 +1,6 @@
 import React from 'react';
 import { MapPin, Phone, Mail, Facebook, Instagram, Youtube, ChevronRight } from 'lucide-react';
+import { Logo } from './Logo';
 
 export const Footer: React.FC = () => {
   return (
@@ -10,11 +11,7 @@ export const Footer: React.FC = () => {
           {/* Kolom 1: Tentang Sekolah */}
           <div className="lg:col-span-1 space-y-4">
             <div className="flex items-center gap-3 mb-2">
-                <img 
-                    src="https://upload.wikimedia.org/wikipedia/commons/b/b5/Tut_Wuri_Handayani.svg" 
-                    alt="Logo" 
-                    className="w-12 h-12"
-                />
+                <Logo className="w-12 h-12" />
                 <div>
                     <h3 className="font-bold text-white text-lg leading-tight uppercase">SD NEGERI<br/>TEMPUREJO 1</h3>
                 </div>
