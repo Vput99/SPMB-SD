@@ -1,0 +1,5 @@
+{
+  "name": "SPMB SD Negeri Tempurejo 1",
+  "description": "Sistem Penerimaan Murid Baru (SPMB) untuk SD Negeri Tempurejo 1. Aplikasi ini memudahkan orang tua mendaftarkan anak, mengunggah dokumen (KK dan Akte), serta melihat pengumuman kelulusan. Dilengkapi dengan asisten cerdas AI untuk bantuan informasi.",
+  "requestFramePermissions": []
+}
