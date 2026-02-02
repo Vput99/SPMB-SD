@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StorageService } from '../services/storage';
 import { StudentRegistration, RegistrationStatus } from '../types';
-import { Check, X as XIcon, Trash2, ArrowLeft, RefreshCw } from 'lucide-react';
+import { Check, X as XIcon, Trash2, ArrowLeft, RefreshCw, Download, FileText, User, Calendar, MapPin, Phone } from 'lucide-react';
 
 interface AdminProps {
   onNavigate: (page: string) => void;
@@ -23,8 +23,10 @@ export const Admin: React.FC<AdminProps> = ({ onNavigate }) => {
   }, []);
 
   const handleStatusChange = async (id: string, status: RegistrationStatus) => {
-    await StorageService.updateStatus(id, status);
-    fetchData();
+    if(confirm(`Apakah Anda yakin ingin mengubah status menjadi ${status}?`)) {
+        await StorageService.updateStatus(id, status);
+        fetchData();
+    }
   };
 
   const handleReset = () => {
@@ -33,6 +35,15 @@ export const Admin: React.FC<AdminProps> = ({ onNavigate }) => {
         window.location.reload();
     }
   }
+
+  const downloadImage = (dataUrl: string, filename: string) => {
+    const link = document.createElement('a');
+    link.href = dataUrl;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <div className="bg-gray-100 min-h-screen pb-10">
@@ -47,7 +58,7 @@ export const Admin: React.FC<AdminProps> = ({ onNavigate }) => {
             </button>
             <div>
                 <h1 className="font-bold text-lg leading-none">Admin Panel</h1>
-                <p className="text-[10px] text-gray-300">Kelola Data PPDB</p>
+                <p className="text-[10px] text-gray-300">Verifikasi Data Siswa</p>
             </div>
         </div>
         <button onClick={fetchData} className="p-2 hover:bg-white/20 rounded-full">
@@ -55,66 +66,179 @@ export const Admin: React.FC<AdminProps> = ({ onNavigate }) => {
         </button>
       </div>
 
-      <div className="max-w-md mx-auto px-4 py-6">
-        <div className="flex justify-between items-center mb-4">
-            <h2 className="font-bold text-gray-700">Data Masuk ({students.length})</h2>
-            <button onClick={handleReset} className="text-red-600 text-xs font-medium hover:underline">Reset Demo</button>
+      <div className="max-w-xl mx-auto px-4 py-6">
+        <div className="flex justify-between items-center mb-6">
+            <h2 className="font-bold text-gray-700 flex items-center gap-2">
+                <User className="w-5 h-5 text-school-600" />
+                Daftar Pendaftar ({students.length})
+            </h2>
+            <button onClick={handleReset} className="text-red-600 text-xs font-medium hover:underline bg-red-50 px-2 py-1 rounded">Reset Demo</button>
         </div>
 
         {loading ? (
-          <div className="text-center py-10 text-gray-500">Memuat data...</div>
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <div className="w-8 h-8 border-4 border-school-600 border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-gray-500 text-sm">Memuat data...</p>
+          </div>
         ) : (
-          <div className="space-y-4">
-            {students.length === 0 && <p className="text-center text-gray-500 py-10 bg-white rounded-xl">Belum ada pendaftaran.</p>}
+          <div className="space-y-6">
+            {students.length === 0 && (
+                <div className="text-center py-16 bg-white rounded-xl shadow-sm border border-dashed border-gray-300">
+                    <User className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                    <p className="text-gray-500 font-medium">Belum ada pendaftaran masuk.</p>
+                </div>
+            )}
             
             {students.map((student) => (
-              <div key={student.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-200">
-                <div className="flex justify-between items-start mb-3">
+              <div key={student.id} className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden transition-all hover:shadow-md">
+                
+                {/* Card Header */}
+                <div className="bg-gray-50 px-5 py-4 border-b border-gray-100 flex justify-between items-start">
                     <div>
-                        <h3 className="font-bold text-gray-900">{student.fullName}</h3>
-                        <p className="text-xs text-gray-500">NIK: {student.nik}</p>
+                        <h3 className="font-bold text-gray-900 text-lg">{student.fullName}</h3>
+                        <div className="flex items-center gap-2 text-xs text-gray-500 mt-1">
+                            <span className="font-mono bg-gray-200 px-1.5 py-0.5 rounded text-gray-700">{student.nik}</span>
+                            <span>•</span>
+                            <span>{new Date(student.registrationDate).toLocaleDateString('id-ID')}</span>
+                        </div>
                     </div>
-                    <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide ${
-                        student.status === RegistrationStatus.ACCEPTED ? 'bg-green-100 text-green-700' :
-                        student.status === RegistrationStatus.REJECTED ? 'bg-red-100 text-red-700' :
-                        'bg-yellow-100 text-yellow-700'
+                    <span className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide border ${
+                        student.status === RegistrationStatus.ACCEPTED ? 'bg-green-100 text-green-700 border-green-200' :
+                        student.status === RegistrationStatus.REJECTED ? 'bg-red-100 text-red-700 border-red-200' :
+                        'bg-yellow-100 text-yellow-700 border-yellow-200'
                     }`}>
-                        {student.status}
+                        {student.status === 'PENDING' ? 'MENUNGGU' : student.status}
                     </span>
                 </div>
 
-                <div className="text-xs text-gray-600 space-y-1 mb-4 bg-gray-50 p-3 rounded-lg">
-                    <p><strong>TTL:</strong> {student.birthPlace}, {student.birthDate}</p>
-                    <p><strong>Ortu:</strong> {student.parentName} ({student.parentPhone})</p>
-                    <p><strong>Alamat:</strong> {student.address}</p>
-                </div>
+                <div className="p-5">
+                    {/* Data Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div className="space-y-3">
+                            <div className="flex items-start gap-3">
+                                <Calendar className="w-4 h-4 text-gray-400 mt-0.5" />
+                                <div>
+                                    <p className="text-[10px] text-gray-500 uppercase font-bold">TTL & Gender</p>
+                                    <p className="text-sm font-medium text-gray-800">{student.birthPlace}, {student.birthDate}</p>
+                                    <p className="text-xs text-gray-600">{student.gender}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <MapPin className="w-4 h-4 text-gray-400 mt-0.5" />
+                                <div>
+                                    <p className="text-[10px] text-gray-500 uppercase font-bold">Alamat</p>
+                                    <p className="text-sm font-medium text-gray-800 leading-snug">{student.address}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div className="space-y-3">
+                            <div className="flex items-start gap-3">
+                                <User className="w-4 h-4 text-gray-400 mt-0.5" />
+                                <div>
+                                    <p className="text-[10px] text-gray-500 uppercase font-bold">Orang Tua</p>
+                                    <p className="text-sm font-medium text-gray-800">{student.parentName}</p>
+                                </div>
+                            </div>
+                            <div className="flex items-start gap-3">
+                                <Phone className="w-4 h-4 text-gray-400 mt-0.5" />
+                                <div>
+                                    <p className="text-[10px] text-gray-500 uppercase font-bold">Kontak (WA)</p>
+                                    <a href={`https://wa.me/${student.parentPhone.replace(/^0/, '62')}`} target="_blank" rel="noreferrer" className="text-sm font-medium text-blue-600 hover:underline">
+                                        {student.parentPhone}
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                <div className="flex gap-2 mb-4 overflow-x-auto pb-2">
-                    {student.kkImage && (
-                        <a href={student.kkImage} target="_blank" rel="noreferrer" className="flex-shrink-0 w-16 h-16 bg-gray-200 rounded-lg overflow-hidden border">
-                            <img src={student.kkImage} alt="KK" className="w-full h-full object-cover" />
-                        </a>
-                    )}
-                    {student.akteImage && (
-                        <a href={student.akteImage} target="_blank" rel="noreferrer" className="flex-shrink-0 w-16 h-16 bg-gray-200 rounded-lg overflow-hidden border">
-                            <img src={student.akteImage} alt="Akte" className="w-full h-full object-cover" />
-                        </a>
-                    )}
-                </div>
+                    {/* Documents Section */}
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-6">
+                        <h4 className="text-xs font-bold text-gray-500 uppercase mb-3 flex items-center gap-2">
+                            <FileText className="w-4 h-4" /> Dokumen Lampiran
+                        </h4>
+                        <div className="grid grid-cols-2 gap-4">
+                            {/* KK Card */}
+                            <div className="bg-white p-2 rounded-lg border border-gray-200 shadow-sm">
+                                <div className="aspect-video bg-gray-100 rounded overflow-hidden mb-2 relative group cursor-pointer">
+                                    {student.kkImage ? (
+                                        <a href={student.kkImage} target="_blank" rel="noreferrer">
+                                            <img src={student.kkImage} alt="KK" className="w-full h-full object-cover" />
+                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                                        </a>
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">No Image</div>
+                                    )}
+                                </div>
+                                <div className="flex justify-between items-center px-1">
+                                    <span className="text-xs font-bold text-gray-700">Kartu Keluarga</span>
+                                    {student.kkImage && (
+                                        <button 
+                                            onClick={() => downloadImage(student.kkImage!, `KK - ${student.fullName}.jpg`)}
+                                            className="text-blue-600 hover:bg-blue-50 p-1 rounded transition-colors"
+                                            title="Download KK"
+                                        >
+                                            <Download className="w-4 h-4" />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <button 
-                    onClick={() => handleStatusChange(student.id, RegistrationStatus.ACCEPTED)}
-                    className="flex items-center justify-center gap-2 py-2 bg-green-50 text-green-700 hover:bg-green-100 rounded-lg text-xs font-bold transition-colors border border-green-200"
-                  >
-                    <Check className="w-4 h-4" /> TERIMA
-                  </button>
-                  <button 
-                    onClick={() => handleStatusChange(student.id, RegistrationStatus.REJECTED)}
-                    className="flex items-center justify-center gap-2 py-2 bg-red-50 text-red-700 hover:bg-red-100 rounded-lg text-xs font-bold transition-colors border border-red-200"
-                  >
-                    <XIcon className="w-4 h-4" /> TOLAK
-                  </button>
+                            {/* Akte Card */}
+                            <div className="bg-white p-2 rounded-lg border border-gray-200 shadow-sm">
+                                <div className="aspect-video bg-gray-100 rounded overflow-hidden mb-2 relative group cursor-pointer">
+                                    {student.akteImage ? (
+                                        <a href={student.akteImage} target="_blank" rel="noreferrer">
+                                            <img src={student.akteImage} alt="Akte" className="w-full h-full object-cover" />
+                                            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                                        </a>
+                                    ) : (
+                                        <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">No Image</div>
+                                    )}
+                                </div>
+                                <div className="flex justify-between items-center px-1">
+                                    <span className="text-xs font-bold text-gray-700">Akte Lahir</span>
+                                    {student.akteImage && (
+                                        <button 
+                                            onClick={() => downloadImage(student.akteImage!, `Akte - ${student.fullName}.jpg`)}
+                                            className="text-blue-600 hover:bg-blue-50 p-1 rounded transition-colors"
+                                            title="Download Akte"
+                                        >
+                                            <Download className="w-4 h-4" />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    {student.status === RegistrationStatus.PENDING && (
+                        <div className="grid grid-cols-2 gap-3">
+                            <button 
+                                onClick={() => handleStatusChange(student.id, RegistrationStatus.ACCEPTED)}
+                                className="flex items-center justify-center gap-2 py-3 bg-green-600 text-white hover:bg-green-700 rounded-xl font-bold transition-all shadow-md shadow-green-200"
+                            >
+                                <Check className="w-5 h-5" /> TERIMA SISWA
+                            </button>
+                            <button 
+                                onClick={() => handleStatusChange(student.id, RegistrationStatus.REJECTED)}
+                                className="flex items-center justify-center gap-2 py-3 bg-white text-red-600 border-2 border-red-100 hover:bg-red-50 rounded-xl font-bold transition-all"
+                            >
+                                <XIcon className="w-5 h-5" /> TOLAK
+                            </button>
+                        </div>
+                    )}
+                    
+                    {student.status !== RegistrationStatus.PENDING && (
+                        <div className="text-center pt-2 border-t border-gray-100">
+                             <button 
+                                onClick={() => handleStatusChange(student.id, RegistrationStatus.PENDING)}
+                                className="text-gray-400 text-xs hover:text-gray-600 underline"
+                            >
+                                Batalkan Status (Kembali ke Pending)
+                            </button>
+                        </div>
+                    )}
                 </div>
               </div>
             ))}
