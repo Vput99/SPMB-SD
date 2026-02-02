@@ -54,6 +54,54 @@ export const Admin: React.FC<AdminProps> = ({ onNavigate }) => {
     document.body.removeChild(link);
   };
 
+  // Helper: Kompresi Logo agar tidak terlalu besar (Max 400px)
+  const compressLogo = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (event) => {
+        const img = new Image();
+        img.src = event.target?.result as string;
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const ctx = canvas.getContext('2d');
+          
+          // Ukuran maksimal logo 400x400 px (Cukup untuk header/surat)
+          const MAX_SIZE = 400; 
+          let width = img.width;
+          let height = img.height;
+          
+          // Hitung rasio aspek
+          if (width > height) {
+            if (width > MAX_SIZE) {
+              height *= MAX_SIZE / width;
+              width = MAX_SIZE;
+            }
+          } else {
+            if (height > MAX_SIZE) {
+              width *= MAX_SIZE / height;
+              height = MAX_SIZE;
+            }
+          }
+          
+          canvas.width = width;
+          canvas.height = height;
+          
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            // Gunakan PNG untuk transparansi
+            const dataUrl = canvas.toDataURL('image/png');
+            resolve(dataUrl);
+          } else {
+            reject(new Error("Gagal memproses gambar"));
+          }
+        };
+        img.onerror = (err) => reject(err);
+      };
+      reader.onerror = (err) => reject(err);
+    });
+  };
+
   // Logo Upload Handlers
   const handleLogoChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -63,13 +111,14 @@ export const Admin: React.FC<AdminProps> = ({ onNavigate }) => {
             return;
         }
         
-        // Convert to Base64
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-            const result = ev.target?.result as string;
-            setLogoPreview(result);
-        };
-        reader.readAsDataURL(file);
+        try {
+            // Kompresi dulu sebelum ditampilkan/disimpan
+            const compressed = await compressLogo(file);
+            setLogoPreview(compressed);
+        } catch (err) {
+            console.error(err);
+            alert("Gagal memproses gambar logo.");
+        }
     }
   };
 
@@ -81,8 +130,9 @@ export const Admin: React.FC<AdminProps> = ({ onNavigate }) => {
           // Update local cache manually to reflect changes immediately
           localStorage.setItem('schoolLogo', logoPreview);
           alert("Logo sekolah berhasil diperbarui!");
-      } catch (error) {
-          alert("Gagal menyimpan logo.");
+      } catch (error: any) {
+          console.error(error);
+          alert("Gagal menyimpan logo. " + (error.message || "Pastikan ukuran tidak terlalu besar."));
       } finally {
           setIsSavingLogo(false);
       }

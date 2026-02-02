@@ -109,9 +109,9 @@ export const StorageService = {
       try {
           const docRef = doc(db, SETTINGS_COLLECTION, SCHOOL_DOC_ID);
           await setDoc(docRef, { logoUrl: base64Image }, { merge: true });
-      } catch (error) {
+      } catch (error: any) {
           console.error("Error saving logo:", error);
-          throw new Error("Gagal menyimpan logo.");
+          throw new Error(error.message || "Gagal menyimpan logo.");
       }
   },
 
