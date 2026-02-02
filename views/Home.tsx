@@ -92,6 +92,16 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
                         </div>
                         <span className="font-bold text-sm">Pengumuman</span>
                     </button>
+
+                     <button 
+                        onClick={() => onNavigate('students')}
+                        className="col-span-2 bg-white/95 hover:bg-white text-school-900 p-4 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex flex-row items-center justify-center gap-4 group border-b-4 border-blue-500 backdrop-blur-sm"
+                    >
+                        <div className="w-10 h-10 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-colors">
+                            <Users className="w-5 h-5" />
+                        </div>
+                        <span className="font-bold text-sm">Data Siswa Terverifikasi</span>
+                    </button>
                 </div>
             </div>
         </section>

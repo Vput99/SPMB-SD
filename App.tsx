@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Home } from './views/Home';
 import { Registration } from './views/Registration';
 import { Announcement } from './views/Announcement';
+import { Students } from './views/Students';
 import { Admin } from './views/Admin';
 import { ChatWidget } from './components/ChatWidget';
 
@@ -35,6 +36,8 @@ const App: React.FC = () => {
         return <Registration onNavigate={navigate} />;
       case 'announcement':
         return <Announcement onNavigate={navigate} />;
+      case 'students':
+        return <Students onNavigate={navigate} />;
       case 'admin':
         return <Admin onNavigate={navigate} />;
       default:

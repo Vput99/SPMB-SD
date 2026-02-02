@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Menu, X, Home, FileText, Bell, Lock, Phone, Mail, Facebook, Youtube, Instagram, MapPin } from 'lucide-react';
+import { Menu, X, Home, FileText, Bell, Lock, Phone, Mail, Facebook, Youtube, Instagram, MapPin, Users } from 'lucide-react';
 
 interface NavbarProps {
   currentPage: string;
@@ -13,6 +13,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
     { id: 'home', label: 'BERANDA', icon: <Home className="w-4 h-4 mr-2" /> },
     { id: 'register', label: 'PPDB ONLINE', icon: <FileText className="w-4 h-4 mr-2" /> },
     { id: 'announcement', label: 'PENGUMUMAN', icon: <Bell className="w-4 h-4 mr-2" /> },
+    { id: 'students', label: 'DATA SISWA', icon: <Users className="w-4 h-4 mr-2" /> },
     { id: 'admin', label: 'LOGIN ADMIN', icon: <Lock className="w-4 h-4 mr-2" /> },
   ];
 

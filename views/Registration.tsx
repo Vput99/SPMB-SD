@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Upload, Check, AlertCircle, Loader2, ArrowLeft, Camera } from 'lucide-react';
+import { Upload, Check, AlertCircle, Loader2, ArrowLeft, Camera, FileText, User, Phone, MapPin, Calendar as CalendarIcon, Printer } from 'lucide-react';
 import { StorageService } from '../services/storage';
 
 interface RegistrationProps {
@@ -82,6 +82,15 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
     }
   };
 
+  const handleNextToValidation = () => {
+     if (!files.kk || !files.akte) {
+        setError("Mohon upload KK dan Akte sebelum melanjutkan.");
+        return;
+     }
+     setError(null);
+     setStep(4);
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
@@ -100,7 +109,6 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
         akteImage: files.akte,
       });
       setSuccessId(result.id);
-      setStep(4);
     } catch (err: any) {
       setError(err.message || "Terjadi kesalahan saat menyimpan data.");
     } finally {
@@ -108,36 +116,155 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
     }
   };
 
+  const handlePrint = () => {
+    window.print();
+  };
+
   if (successId) {
     return (
-      <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center animate-fade-in">
-        <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6 shadow-sm">
-          <Check className="w-12 h-12 text-green-600" />
+      <>
+        {/* Tampilan Layar (Screen View) */}
+        <div className="min-h-screen bg-white flex flex-col items-center justify-center p-6 text-center animate-fade-in print:hidden">
+          <div className="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mb-6 shadow-sm">
+            <Check className="w-12 h-12 text-green-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Pendaftaran Berhasil!</h2>
+          <p className="text-gray-500 mb-8 max-w-sm mx-auto">
+            Data atas nama <strong>{formData.fullName}</strong> berhasil dikirim. Silakan cetak bukti pendaftaran di bawah ini.
+          </p>
+          
+          <div className="space-y-3 w-full max-w-xs">
+              <button 
+              onClick={handlePrint}
+              className="w-full bg-blue-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200 flex items-center justify-center gap-2"
+              >
+              <Printer className="w-5 h-5" />
+              Cetak Bukti Pendaftaran
+              </button>
+
+              <div className="h-4"></div>
+
+              <button 
+              onClick={() => onNavigate('home')}
+              className="w-full bg-gray-100 text-gray-800 px-6 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors"
+              >
+              Kembali ke Beranda
+              </button>
+              <button 
+              onClick={() => window.location.reload()}
+              className="w-full border border-school-600 text-school-600 px-6 py-3 rounded-xl font-bold hover:bg-school-50 transition-colors"
+              >
+              Daftar Siswa Lain
+              </button>
+          </div>
         </div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Pendaftaran Berhasil!</h2>
-        <p className="text-gray-500 mb-8">
-          Data <strong>{formData.fullName}</strong> berhasil dikirim. Silakan cek menu Pengumuman secara berkala.
-        </p>
-        <div className="space-y-3 w-full max-w-xs">
-            <button 
-            onClick={() => onNavigate('home')}
-            className="w-full bg-gray-100 text-gray-800 px-6 py-3 rounded-xl font-bold hover:bg-gray-200 transition-colors"
-            >
-            Kembali ke Beranda
-            </button>
-            <button 
-            onClick={() => window.location.reload()}
-            className="w-full bg-school-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-school-700 transition-colors shadow-lg shadow-school-200"
-            >
-            Daftar Siswa Lain
-            </button>
+
+        {/* Tampilan Cetak (Print View) - Hanya muncul saat diprint */}
+        <div className="hidden print:block fixed inset-0 bg-white z-[9999] p-8 font-serif text-black">
+            {/* Kop Surat */}
+            <div className="flex items-center gap-4 border-b-4 border-black pb-4 mb-6">
+                <img 
+                    src="https://upload.wikimedia.org/wikipedia/commons/b/b5/Tut_Wuri_Handayani.svg" 
+                    alt="Logo" 
+                    className="w-24 h-24 grayscale"
+                />
+                <div className="text-center flex-1">
+                    <h3 className="text-lg font-bold uppercase tracking-widest">Pemerintah Kota Kediri</h3>
+                    <h3 className="text-lg font-bold uppercase tracking-widest">Dinas Pendidikan</h3>
+                    <h1 className="text-3xl font-black uppercase mb-1">UPTD SDN Tempurejo 1</h1>
+                    <p className="text-sm">Jl. Bagawanta Bhari No. 1, Tempurejo, Kec. Pesantren, Kota Kediri - 64132</p>
+                    <p className="text-sm">Email: sdntempurejo1@gmail.com | Telp: (0354) 123456</p>
+                </div>
+            </div>
+
+            {/* Judul Dokumen */}
+            <div className="text-center mb-8">
+                <h2 className="text-2xl font-bold uppercase underline decoration-2 underline-offset-4">Bukti Pendaftaran PPDB Online</h2>
+                <p className="text-md mt-1 font-bold">Tahun Ajaran 2026/2027</p>
+            </div>
+
+            {/* Nomor Registrasi */}
+            <div className="border-2 border-black p-4 mb-8 text-center bg-gray-50">
+                <p className="text-sm font-bold uppercase mb-1">Nomor Registrasi</p>
+                <p className="text-3xl font-mono font-black tracking-widest">{successId.slice(0, 8).toUpperCase()}</p>
+            </div>
+
+            {/* Data Siswa */}
+            <div className="mb-8">
+                <h3 className="text-lg font-bold border-b border-black mb-4 pb-1">A. Data Calon Peserta Didik</h3>
+                <table className="w-full text-sm">
+                    <tbody>
+                        <tr className="border-b border-gray-300">
+                            <td className="py-2 w-40 font-bold">Nama Lengkap</td>
+                            <td className="py-2">: {formData.fullName.toUpperCase()}</td>
+                        </tr>
+                        <tr className="border-b border-gray-300">
+                            <td className="py-2 w-40 font-bold">NIK</td>
+                            <td className="py-2">: {formData.nik}</td>
+                        </tr>
+                        <tr className="border-b border-gray-300">
+                            <td className="py-2 w-40 font-bold">Tempat, Tgl Lahir</td>
+                            <td className="py-2">: {formData.birthPlace}, {formData.birthDate}</td>
+                        </tr>
+                        <tr className="border-b border-gray-300">
+                            <td className="py-2 w-40 font-bold">Jenis Kelamin</td>
+                            <td className="py-2">: {formData.gender}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Data Orang Tua */}
+            <div className="mb-8">
+                <h3 className="text-lg font-bold border-b border-black mb-4 pb-1">B. Data Orang Tua / Wali</h3>
+                <table className="w-full text-sm">
+                    <tbody>
+                        <tr className="border-b border-gray-300">
+                            <td className="py-2 w-40 font-bold">Nama Orang Tua</td>
+                            <td className="py-2">: {formData.parentName}</td>
+                        </tr>
+                        <tr className="border-b border-gray-300">
+                            <td className="py-2 w-40 font-bold">No. WhatsApp</td>
+                            <td className="py-2">: {formData.parentPhone}</td>
+                        </tr>
+                        <tr className="border-b border-gray-300">
+                            <td className="py-2 w-40 font-bold">Alamat Rumah</td>
+                            <td className="py-2">: {formData.address}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            {/* Catatan */}
+            <div className="bg-gray-100 border border-gray-400 p-4 mb-12 text-sm">
+                <p className="font-bold mb-2">Catatan Penting:</p>
+                <ul className="list-disc pl-5 space-y-1">
+                    <li>Simpan bukti pendaftaran ini sebagai syarat daftar ulang.</li>
+                    <li>Silakan pantau hasil seleksi melalui menu <strong>PENGUMUMAN</strong> di website sekolah.</li>
+                    <li>Verifikasi berkas fisik akan diinformasikan lebih lanjut melalui WhatsApp.</li>
+                </ul>
+            </div>
+
+            {/* Tanda Tangan */}
+            <div className="flex justify-end mt-10">
+                <div className="text-center w-64">
+                    <p className="mb-20">Kediri, {new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+                    <p className="font-bold border-b border-black inline-block min-w-[200px] mb-1">Panitia PPDB</p>
+                    <p className="text-xs">SDN Tempurejo 1</p>
+                </div>
+            </div>
+
+            {/* Footer Print */}
+            <div className="fixed bottom-4 left-0 right-0 text-center text-[10px] text-gray-500 italic">
+                Dicetak otomatis melalui Sistem PPDB Online SDN Tempurejo 1 pada {new Date().toLocaleString('id-ID')}
+            </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div className="bg-gray-50 min-h-screen pb-10">
+    <div className="bg-gray-50 min-h-screen pb-10 print:hidden">
       {/* Sticky Top Bar */}
       <div className="bg-white px-4 py-3 shadow-sm sticky top-0 z-50 flex items-center gap-3">
         <button 
@@ -151,18 +278,20 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
 
       <div className="max-w-md mx-auto px-4 py-6">
         {/* Progress Bar */}
-        <div className="flex justify-between items-center mb-8 px-4">
-            {[1, 2, 3].map((num) => (
-                <div key={num} className="flex flex-col items-center gap-1">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-colors ${step >= num ? 'bg-school-600 text-white shadow-md' : 'bg-gray-200 text-gray-500'}`}>
+        <div className="flex justify-between items-center mb-8 px-2 relative">
+             <div className="absolute left-4 right-4 top-5 h-0.5 bg-gray-200 -z-10"></div>
+             <div className={`absolute left-4 top-5 h-0.5 bg-school-600 -z-10 transition-all duration-500`} style={{ width: `${((step - 1) / 3) * 100}%` }}></div>
+
+            {[1, 2, 3, 4].map((num) => (
+                <div key={num} className="flex flex-col items-center gap-1 bg-gray-50 px-1">
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${step >= num ? 'bg-school-600 text-white shadow-md scale-110' : 'bg-gray-200 text-gray-500'}`}>
                         {step > num ? <Check className="w-5 h-5" /> : num}
                     </div>
-                    <span className="text-[10px] text-gray-500 font-medium">
-                        {num === 1 ? 'Data Diri' : num === 2 ? 'Ortu' : 'Berkas'}
+                    <span className={`text-[10px] font-medium transition-colors ${step >= num ? 'text-school-700' : 'text-gray-400'}`}>
+                        {num === 1 ? 'Data Diri' : num === 2 ? 'Ortu' : num === 3 ? 'Berkas' : 'Validasi'}
                     </span>
                 </div>
             ))}
-             <div className="absolute left-0 right-0 top-6 h-0.5 bg-gray-200 -z-10 mx-12 hidden md:block"></div>
         </div>
 
         <form onSubmit={handleSubmit} className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
@@ -264,9 +393,99 @@ export const Registration: React.FC<RegistrationProps> = ({ onNavigate }) => {
                   <button type="button" onClick={() => setStep(2)} disabled={isLoading} className="flex-1 bg-gray-100 text-gray-700 py-3.5 rounded-xl font-bold hover:bg-gray-200 transition-colors disabled:opacity-50">
                     Kembali
                   </button>
+                  <button type="button" onClick={handleNextToValidation} className="flex-1 bg-school-600 text-white py-3.5 rounded-xl font-bold hover:bg-school-700 transition-colors shadow-lg shadow-school-200 flex items-center justify-center gap-2">
+                    Lanjut Validasi
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {step === 4 && (
+              <div className="space-y-6 animate-fade-in">
+                <div className="bg-yellow-50 border border-yellow-100 p-4 rounded-xl text-yellow-800 text-sm flex gap-3">
+                    <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                    <p>Mohon periksa kembali data di bawah ini sebelum dikirim. Data yang sudah dikirim tidak dapat diubah sendiri.</p>
+                </div>
+
+                <div className="space-y-4">
+                    {/* Review Data Diri */}
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                        <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2 border-b border-gray-200 pb-2">
+                            <User className="w-4 h-4 text-school-600" />
+                            Data Calon Siswa
+                        </h3>
+                        <div className="grid grid-cols-1 gap-y-2 text-sm">
+                            <div>
+                                <span className="text-gray-500 text-xs block">Nama Lengkap</span>
+                                <span className="font-medium text-gray-800">{formData.fullName}</span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                    <span className="text-gray-500 text-xs block">NIK</span>
+                                    <span className="font-medium text-gray-800">{formData.nik}</span>
+                                </div>
+                                <div>
+                                    <span className="text-gray-500 text-xs block">Jenis Kelamin</span>
+                                    <span className="font-medium text-gray-800">{formData.gender}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <span className="text-gray-500 text-xs block">TTL</span>
+                                <span className="font-medium text-gray-800">{formData.birthPlace}, {formData.birthDate}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Review Data Ortu */}
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                        <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2 border-b border-gray-200 pb-2">
+                            <User className="w-4 h-4 text-school-600" />
+                            Data Orang Tua
+                        </h3>
+                        <div className="grid grid-cols-1 gap-y-2 text-sm">
+                            <div className="grid grid-cols-2 gap-2">
+                                <div>
+                                    <span className="text-gray-500 text-xs block">Nama Ortu</span>
+                                    <span className="font-medium text-gray-800">{formData.parentName}</span>
+                                </div>
+                                <div>
+                                    <span className="text-gray-500 text-xs block">No. WhatsApp</span>
+                                    <span className="font-medium text-gray-800">{formData.parentPhone}</span>
+                                </div>
+                            </div>
+                            <div>
+                                <span className="text-gray-500 text-xs block">Alamat</span>
+                                <span className="font-medium text-gray-800">{formData.address}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Review Berkas */}
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100">
+                        <h3 className="font-bold text-gray-800 mb-3 flex items-center gap-2 border-b border-gray-200 pb-2">
+                            <FileText className="w-4 h-4 text-school-600" />
+                            Berkas
+                        </h3>
+                        <div className="grid grid-cols-2 gap-3">
+                            <div className="border rounded-lg p-2 bg-white text-center">
+                                <span className="text-xs text-gray-500 block mb-1">Kartu Keluarga</span>
+                                <img src={files.kk!} alt="Preview KK" className="w-full h-20 object-cover rounded" />
+                            </div>
+                            <div className="border rounded-lg p-2 bg-white text-center">
+                                <span className="text-xs text-gray-500 block mb-1">Akte Kelahiran</span>
+                                <img src={files.akte!} alt="Preview Akte" className="w-full h-20 object-cover rounded" />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div className="flex gap-3 mt-6 pt-4 border-t border-gray-100">
+                  <button type="button" onClick={() => setStep(3)} disabled={isLoading} className="flex-1 bg-gray-100 text-gray-700 py-3.5 rounded-xl font-bold hover:bg-gray-200 transition-colors disabled:opacity-50">
+                    Perbaiki Data
+                  </button>
                   <button type="submit" disabled={isLoading} className="flex-1 bg-accent-500 text-white py-3.5 rounded-xl font-bold hover:bg-accent-600 transition-colors shadow-lg shadow-accent-200 flex items-center justify-center gap-2 disabled:opacity-50">
                     {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Check className="w-5 h-5" />}
-                    {isLoading ? 'Mengirim...' : 'Kirim Data'}
+                    {isLoading ? 'Mengirim...' : 'Kirim Pendaftaran'}
                   </button>
                 </div>
               </div>
