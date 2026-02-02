@@ -3,29 +3,43 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SPMB SD Negeri Tempurejo 1</title>
+    <title>SPMB SD NEGERI TEMPUREJO 1</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@300;400;500;600;700&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,300;0,400;0,500;0,700;0,900;1,400&display=swap" rel="stylesheet">
     <script>
       tailwind.config = {
         theme: {
           extend: {
             fontFamily: {
-              sans: ['Nunito', 'sans-serif'],
-              heading: ['Fredoka', 'sans-serif'],
+              sans: ['Roboto', 'sans-serif'],
+              heading: ['Roboto', 'sans-serif'],
             },
             colors: {
               school: {
-                50: '#f0f9ff',
-                100: '#e0f2fe',
-                500: '#0ea5e9',
-                600: '#0284c7',
-                700: '#0369a1',
-                900: '#0c4a6e',
+                50: '#f0fdf4', // Green 50 (Mint)
+                100: '#dcfce7', // Green 100
+                200: '#bbf7d0',
+                500: '#22c55e', // Green 500
+                600: '#16a34a', // Green 600 (Primary Adiwiyata)
+                700: '#15803d', // Green 700
+                800: '#166534', // Green 800 (Dark Forest)
+                900: '#14532d', // Green 900
               },
               accent: {
-                500: '#fbbf24',
-                600: '#d97706',
+                100: '#fef3c7', // Amber 100
+                500: '#f59e0b', // Amber 500 (Sun)
+                600: '#d97706', // Amber 600
+              }
+            },
+            animation: {
+              'float': 'float 6s ease-in-out infinite',
+            },
+            keyframes: {
+              float: {
+                '0%, 100%': { transform: 'translateY(0)' },
+                '50%': { transform: 'translateY(-10px)' },
               }
             }
           }
@@ -35,9 +49,9 @@
 <script type="importmap">
 {
   "imports": {
-    "react/": "https://esm.sh/react@^19.2.4/",
     "react": "https://esm.sh/react@^19.2.4",
     "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
     "firebase/": "https://esm.sh/firebase@^12.8.0/",
     "@google/genai": "https://esm.sh/@google/genai@^1.39.0",
     "lucide-react": "https://esm.sh/lucide-react@^0.563.0",
@@ -47,7 +61,7 @@
 }
 </script>
 </head>
-  <body class="bg-slate-50 text-slate-800">
+  <body class="bg-school-50 text-slate-800">
     <div id="root"></div>
     <!-- Entry point untuk Vite -->
     <script type="module" src="/index.tsx"></script>

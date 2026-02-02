@@ -1,131 +1,170 @@
 import React from 'react';
-import { Calendar, CheckCircle, Upload, Users } from 'lucide-react';
+import { Calendar, CheckCircle, Upload, Users, ChevronRight, FileText, Bell, Lock, Leaf, Sprout, MapPin, Trophy, Home as HomeIcon } from 'lucide-react';
 
 interface HomeProps {
   onNavigate: (page: string) => void;
 }
 
 export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
+  // Pastikan Anda menyimpan gambar poster dengan nama 'background.jpg' di folder public
+  // Fallback ke gambar sekolah jika file tidak ditemukan
+  const bgImage = "/background.jpg"; 
+  const fallbackBg = "https://images.unsplash.com/photo-1588072432836-e10032774350?q=80&w=2072&auto=format&fit=crop";
+
   return (
-    <div className="space-y-12 pb-12">
-      {/* Hero Section */}
-      <section className="relative bg-school-600 text-white py-20 rounded-b-[3rem] shadow-xl overflow-hidden">
-        <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/school-supplies.png')]"></div>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-          <h1 className="text-4xl md:text-6xl font-heading font-bold mb-6">
-            Selamat Datang di<br/>SD Negeri Tempurejo 1
-          </h1>
-          <p className="text-xl md:text-2xl text-school-100 mb-8 max-w-2xl mx-auto font-light">
-            Membangun Generasi Cerdas, Berkarakter, dan Berakhlak Mulia. Penerimaan Peserta Didik Baru Tahun Ajaran 2024/2025 Telah Dibuka!
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <button 
-              onClick={() => onNavigate('register')}
-              className="bg-accent-500 text-white px-8 py-3 rounded-full font-bold text-lg shadow-lg hover:bg-accent-600 transform transition hover:-translate-y-1"
+    <div className="min-h-screen pb-10 relative overflow-hidden font-sans">
+      
+      {/* Background Image Fixed */}
+      <div 
+        className="fixed inset-0 z-0 bg-cover bg-center bg-no-repeat"
+        style={{ 
+            backgroundImage: `url('${bgImage}'), url('${fallbackBg}')`,
+            backgroundPosition: 'center top' 
+        }}
+      >
+        {/* Gradient Overlay untuk keterbacaan (Adiwiyata Theme) */}
+        {/* Menggunakan overlay hijau gelap agar teks putih terbaca, namun gambar tetap terlihat */}
+        <div className="absolute inset-0 bg-gradient-to-b from-school-900/90 via-school-800/80 to-school-600/90"></div>
+      </div>
+
+      {/* Content Wrapper */}
+      <div className="relative z-10">
+        
+        {/* External Home Button */}
+        <div className="absolute top-4 left-4 z-50">
+            <a 
+                href="https://sdntempurejo1kotakediri.my.id/beranda" 
+                className="flex items-center gap-2 bg-white/20 backdrop-blur-md border border-white/30 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:bg-white/30 hover:scale-105 transition-all group"
             >
-              Daftar Sekarang
-            </button>
-            <button 
-              onClick={() => onNavigate('announcement')}
-              className="bg-white/10 backdrop-blur-sm border-2 border-white/50 text-white px-8 py-3 rounded-full font-bold text-lg hover:bg-white/20 transition-colors"
-            >
-              Cek Pengumuman
-            </button>
-          </div>
+                <div className="bg-white/20 p-1 rounded-full group-hover:bg-white/30 transition-colors">
+                  <HomeIcon className="w-4 h-4" />
+                </div>
+                <span>Website Sekolah</span>
+            </a>
         </div>
-      </section>
 
-      {/* Info Cards */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-heading font-bold text-school-900 text-center mb-10">Alur Pendaftaran</h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          {[
-            {
-              icon: <Users className="w-10 h-10 text-school-500" />,
-              title: "1. Isi Data Diri",
-              desc: "Lengkapi formulir data diri calon siswa dan data orang tua dengan benar."
-            },
-            {
-              icon: <Upload className="w-10 h-10 text-school-500" />,
-              title: "2. Upload Dokumen",
-              desc: "Unggah foto Kartu Keluarga (KK) dan Akte Kelahiran asli yang jelas."
-            },
-            {
-              icon: <CheckCircle className="w-10 h-10 text-school-500" />,
-              title: "3. Verifikasi & Pengumuman",
-              desc: "Data akan diverifikasi oleh panitia. Cek hasil seleksi di menu Pengumuman."
-            }
-          ].map((item, idx) => (
-            <div key={idx} className="bg-white p-8 rounded-2xl shadow-md border-b-4 border-school-500 hover:shadow-lg transition-shadow">
-              <div className="bg-school-50 w-16 h-16 rounded-full flex items-center justify-center mb-4">
-                {item.icon}
-              </div>
-              <h3 className="text-xl font-bold text-gray-800 mb-2">{item.title}</h3>
-              <p className="text-gray-600">{item.desc}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+        {/* Hero Section */}
+        <section className="text-white pt-16 px-6 pb-4">
+            <div className="max-w-md mx-auto text-center">
+                {/* Logo Wrapper with Glass Effect */}
+                <div className="mx-auto bg-white/20 backdrop-blur-md p-3 rounded-full w-24 h-24 flex items-center justify-center shadow-xl mb-4 border-2 border-white/30 animate-float">
+                    <img 
+                    src="https://upload.wikimedia.org/wikipedia/commons/b/b5/Tut_Wuri_Handayani.svg" 
+                    alt="Logo Tut Wuri Handayani" 
+                    className="w-16 h-16 drop-shadow-md"
+                    />
+                </div>
 
-      {/* Stats/Features */}
-      <section className="bg-school-50 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col md:flex-row items-center gap-12">
-            <div className="flex-1">
-              <img 
-                src="https://picsum.photos/800/600" 
-                alt="Kegiatan Sekolah" 
-                className="rounded-2xl shadow-xl w-full object-cover h-64 md:h-96"
-              />
-            </div>
-            <div className="flex-1 space-y-6">
-              <h2 className="text-3xl font-heading font-bold text-school-900">Kenapa Memilih Kami?</h2>
-              <ul className="space-y-4">
-                {[
-                  "Terakreditasi A",
-                  "Guru Profesional & Berpengalaman",
-                  "Ekstrakurikuler Lengkap (Pramuka, Drumband, Tari)",
-                  "Lingkungan Asri dan Kondusif",
-                  "Program Pembiasaan Karakter Religius"
-                ].map((point, i) => (
-                  <li key={i} className="flex items-center gap-3 text-lg text-gray-700">
-                    <div className="w-2 h-2 rounded-full bg-accent-500"></div>
-                    {point}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        </div>
-      </section>
+                <div className="inline-flex items-center gap-1 bg-school-900/50 px-3 py-1 rounded-full backdrop-blur-md mb-4 border border-white/20 shadow-sm">
+                    <Leaf className="w-3 h-3 text-accent-500" />
+                    <span className="text-accent-100 font-bold tracking-wider text-[10px] uppercase">Sekolah Adiwiyata</span>
+                </div>
 
-      {/* Schedule */}
-      <section className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-        <div className="bg-gradient-to-r from-school-600 to-school-700 rounded-3xl p-8 md:p-12 text-white shadow-2xl">
-          <div className="inline-flex items-center justify-center p-3 bg-white/20 rounded-full mb-6">
-            <Calendar className="w-8 h-8 text-white" />
-          </div>
-          <h2 className="text-3xl font-bold mb-4">Jadwal PPDB</h2>
-          <div className="grid md:grid-cols-2 gap-6 text-left mt-8">
-            <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm">
-              <h4 className="font-bold text-accent-500 mb-1">Pendaftaran Online</h4>
-              <p>1 Mei - 30 Juni 2024</p>
+                {/* Judul Besar Sesuai Poster */}
+                <h1 className="text-5xl font-black uppercase leading-none mb-2 drop-shadow-[0_4px_4px_rgba(0,0,0,0.3)] text-transparent bg-clip-text bg-gradient-to-b from-white to-gray-200 tracking-tight">
+                    SPMB
+                </h1>
+                <h2 className="text-lg font-bold uppercase tracking-widest mb-1 text-accent-400 drop-shadow-sm">
+                    SDN Tempurejo 1
+                </h2>
+                <p className="text-white/90 text-sm font-medium px-4 leading-relaxed mb-8 max-w-xs mx-auto">
+                    Tahun Ajaran 2026/2027
+                </p>
+
+                {/* Main Menu Grid */}
+                <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
+                    <button 
+                        onClick={() => onNavigate('register')}
+                        className="bg-white/95 hover:bg-white text-school-900 p-5 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex flex-col items-center gap-3 group border-b-4 border-school-600 backdrop-blur-sm"
+                    >
+                        <div className="w-12 h-12 bg-school-100 text-school-600 rounded-full flex items-center justify-center group-hover:bg-school-600 group-hover:text-white transition-colors">
+                            <FileText className="w-6 h-6" />
+                        </div>
+                        <span className="font-bold text-sm">Daftar Baru</span>
+                    </button>
+
+                    <button 
+                        onClick={() => onNavigate('announcement')}
+                        className="bg-white/95 hover:bg-white text-school-900 p-5 rounded-2xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex flex-col items-center gap-3 group border-b-4 border-accent-500 backdrop-blur-sm"
+                    >
+                        <div className="w-12 h-12 bg-accent-100 text-accent-600 rounded-full flex items-center justify-center group-hover:bg-accent-500 group-hover:text-white transition-colors">
+                            <Bell className="w-6 h-6" />
+                        </div>
+                        <span className="font-bold text-sm">Pengumuman</span>
+                    </button>
+                </div>
             </div>
-            <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm">
-              <h4 className="font-bold text-accent-500 mb-1">Verifikasi Berkas</h4>
-              <p>1 Juli - 5 Juli 2024</p>
+        </section>
+
+        {/* Info Section Cards (Glassmorphism) */}
+        <section className="max-w-md mx-auto px-6 mt-4 pb-20 space-y-5">
+            
+            {/* Fasilitas Preview (Based on Flyer) */}
+            <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-5 border border-white/20 text-white">
+                <h3 className="font-bold text-accent-400 mb-3 flex items-center gap-2 text-sm uppercase tracking-wide">
+                    <Trophy className="w-4 h-4" />
+                    Fasilitas Unggulan
+                </h3>
+                <div className="grid grid-cols-2 gap-y-3 gap-x-2 text-xs font-medium">
+                    <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-white"></span>Ruang Multimedia</div>
+                    <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-white"></span>Gedung Aula</div>
+                    <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-white"></span>Perpustakaan</div>
+                    <div className="flex items-center gap-2"><span className="w-1.5 h-1.5 rounded-full bg-white"></span>Mushola & Pendopo</div>
+                </div>
             </div>
-            <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm">
-              <h4 className="font-bold text-accent-500 mb-1">Pengumuman</h4>
-              <p>7 Juli 2024</p>
+
+             {/* Ekstrakurikuler Preview */}
+             <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-lg p-5 border border-white/20 text-white">
+                <h3 className="font-bold text-accent-400 mb-3 flex items-center gap-2 text-sm uppercase tracking-wide">
+                    <Sprout className="w-4 h-4" />
+                    Ekstrakurikuler
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                    {['Pramuka', 'Karate', 'Tari', 'Voli', 'Qiro\'ah', 'Menggambar'].map((ekstra) => (
+                        <span key={ekstra} className="px-2 py-1 rounded-md bg-white/20 text-[10px] font-medium border border-white/10">
+                            {ekstra}
+                        </span>
+                    ))}
+                </div>
             </div>
-            <div className="bg-white/10 p-4 rounded-xl backdrop-blur-sm">
-              <h4 className="font-bold text-accent-500 mb-1">Daftar Ulang</h4>
-              <p>8 Juli - 10 Juli 2024</p>
+
+            {/* Alur Pendaftaran */}
+            <div className="bg-white rounded-2xl shadow-xl p-6 border-t-4 border-accent-500 relative overflow-hidden">
+                <h3 className="font-bold text-gray-800 mb-4 flex items-center gap-2 relative z-10">
+                    <Users className="w-5 h-5 text-school-600" />
+                    Alur Pendaftaran
+                </h3>
+                <div className="space-y-5 relative z-10">
+                    <div className="absolute left-3.5 top-2 bottom-2 w-0.5 bg-gray-100"></div>
+                    {[
+                        { title: "Isi Formulir", desc: "Siapkan KK & Akte" },
+                        { title: "Verifikasi Admin", desc: "Data divalidasi sekolah" },
+                        { title: "Pengumuman", desc: "Lihat hasil seleksi online" }
+                    ].map((step, idx) => (
+                        <div key={idx} className="relative flex gap-4 items-center">
+                            <div className="w-8 h-8 rounded-full bg-school-600 text-white flex items-center justify-center text-xs font-bold shadow-md ring-4 ring-white z-10 flex-shrink-0">
+                                {idx + 1}
+                            </div>
+                            <div>
+                                <h4 className="font-bold text-sm text-gray-800 leading-tight">{step.title}</h4>
+                                <p className="text-[10px] text-gray-500">{step.desc}</p>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
-          </div>
-        </div>
-      </section>
+            
+             <div className="mt-8 text-center pb-8">
+                 <p className="text-[10px] text-white/80 font-medium drop-shadow-sm flex items-center justify-center gap-1">
+                    <MapPin className="w-3 h-3 text-accent-400" />
+                    Jl. Bagawanta Bhari No. 1, Kota Kediri
+                 </p>
+                 <p className="text-[10px] text-white/50 mt-1">
+                    &copy; 2026 SDN Tempurejo 1
+                 </p>
+             </div>
+        </section>
+      </div>
     </div>
   );
 };
