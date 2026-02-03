@@ -34,7 +34,7 @@ export const Home: React.FC<HomeProps> = ({ onNavigate }) => {
         {/* External Home Button */}
         <div className="absolute top-4 left-4 z-50">
             <a 
-                href="https://sdntempurejo1kotakediri.my.id/beranda" 
+                href="https://sdntempurejo1kotakediri.my.id/#beranda" 
                 className="flex items-center gap-2 bg-white/20 backdrop-blur-md border border-white/30 text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg hover:bg-white/30 hover:scale-105 transition-all group"
             >
                 <div className="bg-white/20 p-1 rounded-full group-hover:bg-white/30 transition-colors">

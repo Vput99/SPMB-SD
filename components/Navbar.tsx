@@ -18,6 +18,15 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
     { id: 'admin', label: 'LOGIN ADMIN', icon: <Lock className="w-4 h-4 mr-2" /> },
   ];
 
+  const handleNavClick = (id: string) => {
+    if (id === 'home') {
+      window.location.href = 'https://sdntempurejo1kotakediri.my.id/#beranda';
+    } else {
+      onNavigate(id);
+    }
+    setIsOpen(false);
+  };
+
   return (
     <header className="flex flex-col w-full shadow-md bg-white">
       {/* 1. Top Bar - Informasi Kontak (Dark Bar) */}
@@ -80,7 +89,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
               {navItems.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => onNavigate(item.id)}
+                  onClick={() => handleNavClick(item.id)}
                   className={`flex items-center px-5 h-12 lg:h-14 text-xs lg:text-sm font-bold tracking-wide transition-colors duration-200 uppercase ${
                     currentPage === item.id
                       ? 'bg-school-800 text-white border-b-4 border-yellow-400'
@@ -115,10 +124,7 @@ export const Navbar: React.FC<NavbarProps> = ({ currentPage, onNavigate }) => {
               {navItems.map((item) => (
                 <button
                   key={item.id}
-                  onClick={() => {
-                    onNavigate(item.id);
-                    setIsOpen(false);
-                  }}
+                  onClick={() => handleNavClick(item.id)}
                   className={`flex items-center w-full px-4 py-3 text-sm font-bold uppercase ${
                     currentPage === item.id
                       ? 'bg-school-900 text-yellow-400 border-l-4 border-yellow-400 pl-3'

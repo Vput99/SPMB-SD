@@ -30,7 +30,7 @@ export const Footer: React.FC = () => {
           <div className="lg:col-span-1">
             <h4 className="font-bold text-white text-base mb-4 uppercase tracking-wider border-l-4 border-yellow-500 pl-3">Menu</h4>
             <ul className="space-y-2 text-sm">
-                <li><a href="#" className="hover:text-yellow-400 flex items-center gap-2"><ChevronRight className="w-3 h-3 text-yellow-500"/> Beranda</a></li>
+                <li><a href="https://sdntempurejo1kotakediri.my.id/#beranda" className="hover:text-yellow-400 flex items-center gap-2"><ChevronRight className="w-3 h-3 text-yellow-500"/> Beranda</a></li>
                 <li><a href="#register" className="hover:text-yellow-400 flex items-center gap-2"><ChevronRight className="w-3 h-3 text-yellow-500"/> PPDB Online</a></li>
                 <li><a href="#announcement" className="hover:text-yellow-400 flex items-center gap-2"><ChevronRight className="w-3 h-3 text-yellow-500"/> Pengumuman</a></li>
                 <li><a href="#admin" className="hover:text-yellow-400 flex items-center gap-2"><ChevronRight className="w-3 h-3 text-yellow-500"/> Login Admin</a></li>
